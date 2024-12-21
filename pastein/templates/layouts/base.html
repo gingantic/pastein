@@ -1,0 +1,60 @@
+{% load static %}
+{% spaceless %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        {% block title %}{% endblock %} - Pastein
+    </title>
+
+    <!-- Primary meta tags -->
+    <meta name="title" content="Pastein">
+    <meta name="description" content="A simple pastein service that allows you to store and share text online.">
+    <meta name="author" content="Reihan">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ request.scheme }}://{{ request.META.HTTP_HOST }}">
+    <meta property="og:title" content="Pastein">
+    <meta property="og:description" content="A simple pastein service that allows you to store and share text online.">
+    <meta property="og:image" content="{{ request.scheme }}://{{ request.META.HTTP_HOST }}{% static 'pastein/meta/thumbnail.png' %}">
+    <meta property="og:site_name" content="Pastein">
+
+    <!-- Twitter -->
+    <meta property="twitter:url" content="{{ request.scheme }}://{{ request.META.HTTP_HOST }}" />
+    <meta property="twitter:image" content="{{ request.scheme }}://{{ request.META.HTTP_HOST }}{% static 'pastein/meta/thumbnail.png' %}">
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:title" content="Pastein">
+    <meta property="twitter:description" content="A simple pastein service that allows you to store and share text online.">
+
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'pastein/meta/favicon-32x32.png' %}">
+    <link rel="icon" type="image/png" sizes="96x96" href="{% static 'pastein/meta/favicon-96x96.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'pastein/meta/favicon-16x16.png' %}">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" integrity="sha512-jnSuA4Ss2PkkikSOLtYs8BlYIeeIK1h99ty4YfvRPAlzr377vr3CXDb7sb7eEEBYjDtcYj+AjBH3FLv5uSJuXg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <link rel="stylesheet" href="{% static 'pastein/css/styles.css' %}">
+    
+    {% block stylesheets %}{% endblock %}
+    {% block heads %}{% endblock %}
+</head>
+<body>
+    {% include 'includes/header.html' %}
+    {% block content %}{% endblock %}
+    {% include 'includes/footer.html' %}    
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js" integrity="sha512-7Pi/otdlbbCR+LnW+F7PwFcSDJOuUJB3OxtEHbg4vSMvzvJjde4Po1v4BR9Gdc9aXNUNFVUY+SK51wWT8WF0Gg==" crossorigin="anonymous" referrerpolicy="no-referrer" async defer></script>
+
+    <!-- Javascript -->
+    <script src="{% static 'pastein/js/index.js' %}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
+{% endspaceless %}

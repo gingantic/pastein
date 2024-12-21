@@ -1,0 +1,79 @@
+{% extends 'layouts/base.html' %}
+
+{% load static %}
+{% load widget_tweaks %}
+{% block title %} Register {% endblock %}
+
+{% block heads %}
+{% include 'includes/turnstile.html' %}
+{% endblock %}
+
+{% block content %}
+<!-- Main Content -->
+<main class="my-1">
+    <div class="container rounded-container shadow p-4">
+        <h2 class="text-center mb-3">Register</h2>
+        <div class="row my-4">
+            <div class="col-md-6 offset-md-3">
+                {% if messages %}
+                    {% for message in messages %}
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                {% endif %}
+
+                {% if form.errors %}
+                    {% for _, errors in form.errors.items %}
+                        {% for error in errors %}
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            {{ error }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        {% endfor %}
+                    {% endfor %}
+                {% endif %}
+                   
+                <form action="" method="post">
+                    {% csrf_token %}
+                    <div class="mb-3 row">
+                        <label for="email" class="col-sm-4 col-form-label">Email:</label>
+                        <div class="col-sm-8">
+                            {{ form.email | add_class:"form-control" }}
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="username" class="col-sm-4 col-form-label">Username:</label>
+                        <div class="col-sm-8">
+                            {{ form.username | add_class:"form-control" }}
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="password" class="col-sm-4 col-form-label">Password:</label>
+                        <div class="col-sm-8">
+                            {{ form.password1 | add_class:"form-control" }}
+                            <div class="form-text text-muted pt-1">{{ form.password1.help_text }}</div>
+                        </div>
+                        
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="confirm_password" class="col-sm-4 col-form-label">Confirm Password:</label>
+                        <div class="col-sm-8">
+                            {{ form.password2 | add_class:"form-control" }}
+                            <div class="form-text text-muted pt-1">{{ form.password2.help_text }}</div>
+                        </div>
+                    </div>
+                    <p class="text-muted">By clicking Register, you agree to our <a href="/terms">Terms and Conditions</a>.</p>
+                    <div class="mb-3 row">
+                        <div class="col-sm-8 offset-sm-4">
+                            <div class="cf-turnstile my-1" data-sitekey="{{ TURNSTILE_SITE_KEY }}"></div>
+                            <button type="submit" class="btn btn-primary">Register</button>
+                        </div>
+                    </div>
+                </form>
+                <a href="{% url 'login' %}" class="d-block text-center mt-3">Already have an account? Login</a>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}

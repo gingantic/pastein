@@ -1,0 +1,62 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+{% load custom_tags %}
+{% block title %} 
+    {% if paste.title %}
+    {{ paste.title }}
+    {% else %}
+    {{ "Untitled" }}
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<!-- Main Content -->
+<main class="my-1">
+    <div class="container rounded-container shadow p-4">
+        <div class="mb-3">
+            <div class="details">
+                <div class="info d-flex flex-column">
+                    <div class="info-top">
+                        {% if paste.title %}
+                            {{ paste.title }}
+                        {% else %}
+                            {{ "Untitled" }}
+                        {% endif %}
+                    </div>
+                    <div class="info-bottom d-flex flex-row">
+                        <div class="creator me-3"><i class="fas fa-user me-2"></i>
+                            {% if paste.user %}
+                                <a href="{% url 'user_view' paste.user.username %}">{{ paste.user.username }}</a>
+                            {% else %}
+                                {{ "Anon" }}
+                            {% endif %}
+                        </div>
+                        <div class="created-at me-3"><i class="fas fa-calendar-days me-2"></i>{{ paste.created_at }}</div>
+                        <div class="views-count me-3"><i class="fa-regular fa-eye me-2"></i>{{ paste.hits }}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="pastein-container">
+                <div class="pastein-header">
+                    <div class="d-flex flex-row w-100 overflow-scroll-container">
+                        <div class="details flex-fill justify-content-start">
+                            <div id="size">{{ paste.size|get_size }}</div>
+                        </div>
+                        <div class="actions flex-fill d-flex justify-content-end">
+                            {% if request.user == paste.user %}
+                                <a href="{% url 'delete' paste.url %}" class="btn btn-secondary mx-1">Delete</a>
+                                <a href="{% url 'edit' paste.url %}" class="btn btn-secondary mx-1">Edit</a>
+                            {% endif %}
+                            <a href="{% url 'download' paste.url %}" class="btn btn-secondary mx-1">Download</a>
+                            <a href="{% url 'clone' paste.url %}" class="btn btn-secondary mx-1">Clone</a>
+                            <button type="button" class="btn btn-secondary mx-1" id="copy">Copy</button>
+                            <a type="button" class="btn btn-secondary mx-1" href="{% url 'raw' paste.url %}">Raw</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="pastein-body">{{ paste.content }}</div>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}

@@ -1,0 +1,149 @@
+.rounded-container {
+    border-radius: 5px;
+    padding: 20px;
+}
+
+.dropdown-user.dropdown-toggle::after {
+    display: none; /* Hides the dropdown arrow */
+}
+
+.header-avatar{
+    width: 30px;
+    height: 30px;
+}
+
+header .btn {
+    --bs-btn-padding-y: .35rem; 
+    --bs-btn-padding-x: .5rem; 
+    --bs-btn-font-size: .85rem;
+    --bs-btn-border-radius: 3px;
+}
+
+.pastein-container {
+    border: 1px solid #ccc;
+    font-family: monospace;
+    font-size: 14px;
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 20px;
+    display: flex;
+    flex-direction: column; /* Ensure header is on top */
+}
+
+.pastein-header {
+    display: flex;
+    justify-content: flex-end;
+    background-color: #f5f5f5;
+    padding: 8px;
+    border-bottom: 1px solid #ccc;
+}
+
+.pastein-header .btn {
+    --bs-btn-padding-y: .1rem; 
+    --bs-btn-padding-x: .5rem; 
+    --bs-btn-font-size: .75rem;
+}
+
+.pastein-title {
+    font-weight: bold;
+}
+
+.pastein-date {
+    font-size: 12px;
+}
+
+.pastein-body {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.line-pair {
+    display: grid;
+    grid-template-columns: 60px 1fr; /* Fixed width for line numbers */
+    align-items: start; /* Align number and text at the top */
+}
+
+.line-number {
+    height: 100%;
+    text-align: right;
+    padding: 0 10px;
+    user-select: none;
+}
+
+.line-content {
+    white-space: pre-wrap; /* Allow text wrapping */
+    padding-left: 4px;
+    word-wrap: break-word; /* Break long words */
+}
+
+.text-line {
+    min-height: 1.2em;
+}
+
+.info-top {
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.divider {
+    border-top: 1px solid #ddd; /* Thin horizontal line */
+    margin: 0.5rem auto; /* Center it */
+}
+
+.profile-picture{
+    width: 60px;
+    height: 60px;
+    display: block;
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+/* Ensures scrollable container for horizontal overflow */
+.overflow-scroll-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch; /* Enables smooth scrolling for iOS */
+}
+
+.actions {
+    min-width: 400px;
+    display: flex;
+}
+
+.details{
+    display: flex;
+    min-width: 100px;
+}
+
+/* Styles for the theme switcher */
+.dark-mode-toggle {
+    height: 24px;
+    width: 24px;
+    cursor: pointer;
+}
+
+/* Dark mode styles */
+[data-bs-theme="dark"] .pastein-container {
+    background-color: #333333; /* Dark background */
+    color: #ffffff; /* Light text for dark theme */
+}
+
+/* Additional styles for better contrast in dark mode */
+[data-bs-theme="dark"] .pastein-header {
+    background-color: #444444; /* Slightly lighter background for header */
+    border-bottom: 1px solid #555555; /* Subtle separation in dark mode */
+}
+
+[data-bs-theme="dark"] .line-number {
+    background-color: #444444; /* Dark background for line numbers */
+    color: #cccccc; /* Lighter text for contrast */
+}
+
+[data-bs-theme="dark"] .text-content {
+    background-color: #333333; /* Match container background */
+    color: #ffffff; /* Ensure readability */
+}
+
+a {
+    text-decoration: none;
+}

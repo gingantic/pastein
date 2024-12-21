@@ -1,0 +1,8 @@
+django
+psycopg2-binary
+requests
+django-redis
+python-dotenv
+django-widget-tweaks
+pillow
+django-storages[boto3]

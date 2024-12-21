@@ -1,0 +1,69 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %} Edit
+{% if form.instance.title %}
+    {{ form.instance.title }}
+{% else %}
+    {{ form.instance.url }}
+{% endif %}  {% endblock %}
+
+{% block content %}
+<!-- Main Content -->
+<main class="my-1">
+    <div class="container rounded-container shadow p-4">
+        <h3 class="mb-3">Edit 
+            {% if form.instance.title %}
+                {{ form.instance.title }}
+            {% else %}
+                {{ form.instance.url }}
+            {% endif %}
+        </h3>
+        <form action="" method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                {{ form.content }}
+            </div>
+            {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            {% endif %}
+            <div class="row">
+                <h3>Setting</h3>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <div class="row align-items-center mb-3">
+                            <label for="title" class="col-md-4 d-flex align-items-center">Title:</label>
+                            <div class="col-sm-6">
+                                {{ form.title }}
+                            </div>
+                        </div>
+                        <div class="row align-items-center mb-3">
+                            <label for="password" class="col-md-4 d-flex align-items-center">Password:</label>
+                            <div class="col-sm-6">
+                                {{ form.password }}
+                            </div>
+                            {% if passworded %}
+                                <div class="form-check col-sm-2">
+                                    <input class="form-check-input" type="checkbox" name="disable_password" id="disable_password" value="1">
+                                    <label class="form-check-label" for="disable_password">Disable</label>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="row mb-3">
+                            <span class="col-md-4 d-flex align-items-center"></span>
+                            <div class="col-sm-6">
+                                <button class="btn btn-primary">Save</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</main>
+{% endblock %}

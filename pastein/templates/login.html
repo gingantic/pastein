@@ -1,0 +1,68 @@
+{% extends 'layouts/base.html' %}
+
+{% load static %}
+{% load widget_tweaks %}
+{% block title %} Login {% endblock %}
+
+{% block heads %}
+{% include 'includes/turnstile.html' %}
+{% endblock %}
+
+{% block content %}
+<!-- Main Content -->
+<main class="my-1">
+    <div class="container rounded-container shadow p-4">
+        <h2 class="text-center mb-3">Login</h2>
+        <div class="row my-4">
+            <div class="col-md-6 offset-md-3">
+                {% if form.errors %}
+                    {% for _, errors in form.errors.items %}
+                        {% for error in errors %}
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            {{ error }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        {% endfor %}
+                    {% endfor %}
+                {% endif %}
+        
+                {% if messages %}
+                    {% for message in messages %}
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                {% endif %}
+        
+                <form action="" method="post">
+                    {% csrf_token %}
+                    <div class="mb-3 row">
+                        <label for="username" class="col-sm-4 col-form-label">Username:</label>
+                        <div class="col-sm-8">
+                            {{ form.username | add_class:"form-control" }}
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="password" class="col-sm-4 col-form-label">Password:</label>
+                        <div class="col-sm-8">
+                            <div class="position-relative">
+                                {{ form.password | add_class:"form-control pe-5" | attr:"id:password" }}
+                                <i class="fa-regular fa-eye position-absolute top-50 end-0 translate-middle-y pe-3" 
+                                   style="cursor: pointer;width: 36px;"
+                                   id="togglePassword"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <div class="col-sm-8 offset-sm-4">
+                            <div class="cf-turnstile my-1" data-sitekey="{{ TURNSTILE_SITE_KEY }}"></div>
+                            <button type="submit" class="btn btn-primary">Login</button>
+                        </div>
+                    </div>
+                </form>
+                <a href="{% url 'register' %}" class="d-block text-center mt-3">Don't have an account? Register</a>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}

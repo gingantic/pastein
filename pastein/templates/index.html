@@ -1,0 +1,63 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+{% block title %} Home {% endblock %}
+
+{% block content %}
+<!-- Main Content -->
+<main class="my-1">
+    <div class="container rounded-container shadow p-4">
+        <h3 class="mb-3">New Paste</h3>
+        {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+        {% endif %}
+
+        {% if form.errors %}
+            {% for _, errors in form.errors.items %}
+                {% for error in errors %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{ error }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+            {% endfor %}
+        {% endif %}
+
+        <form action="" method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                {{ form.content }}
+            </div>
+            <div class="row">
+                <h3>Setting</h3>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <div class="row align-items-center mb-2">
+                            <label for="title" class="col-md-4 d-flex align-items-center">Title:</label>
+                            <div class="col-sm-6">
+                                {{ form.title }}
+                            </div>
+                        </div>
+                        <div class="row align-items-center mb-2">
+                            <label for="password" class="col-md-4 d-flex align-items-center">Password:</label>
+                            <div class="col-sm-6">
+                                {{ form.password }}
+                            </div>
+                        </div>
+                        <div class="row mb-2">
+                            <span class="col-md-4 d-flex align-items-center"></span>
+                            <div class="col-sm-6">
+                                <button class="btn btn-primary">Save</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</main>
+{% endblock %}

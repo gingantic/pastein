@@ -1,0 +1,61 @@
+<!-- Header -->
+<header>
+    <nav class="navbar navbar-expand-sm">
+        <div class="container">
+            <!-- Logo and Text -->
+            <div class="d-flex align-items-center">
+                <i class="fa-regular fa-paste mx-2"></i>
+                <a class="navbar-brand mb-0 h1" href="/">Pastein</a>
+            </div>
+            <!-- Toggler for Smaller Screens -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <!-- Navbar Links -->
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <!-- Left-aligned Links -->
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/about">About</a>
+                    </li>                 
+                    <li class="nav-item">
+                        <a class="btn btn-secondary nav-link px-2" href="/"><i class="fa-solid fa-plus me-1"></i>New</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-secondary nav-link px-2" aria-label="Github Repo" href="https://github.com/gingantic/Pastein">
+                            <i class="fa-brands fa-github"></i>
+                        </a>
+                    </li>
+                </ul>
+                <!-- Right-aligned Links -->
+                <div class="d-flex flex-column flex-sm-row align-items-center ms-auto mt-2 mt-sm-0">
+                    {% if request.user.is_authenticated %}
+                    <!-- User Dropdown -->
+                    <div class="nav-item dropdown mx-3 d-flex justify-content-center align-items-center">
+                        <a class="nav-link dropdown-user dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <img src="{{ request.user.get_profile_picture_url }}" alt="avatar" class="header-avatar me-1">
+                            {{ request.user.username }}
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item" href="{% url 'user_view' request.user.username %}">My Paste</a></li>
+                            <li><a class="dropdown-item" href="{% url 'user_profile' %}">Profile</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="/logout">Logout</a></li>
+                        </ul>
+                    </div>
+                    {% else %}
+                    <!-- Login Button -->
+                    <a class="btn btn-secondary" href="/login"><i class="fa-solid fa-right-to-bracket me-1"></i>Login</a>
+                    {% endif %}
+                    <div class="divider d-sm-none w-50 border-secondary my-2"></div>
+                    <!-- Dark Mode Toggle -->
+                    <div class="ms-3">
+                        <span class="dark-mode-toggle nav-link" id="darkModeToggle">
+                            <i class="fas fa-moon" id="darkModeIcon"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>
