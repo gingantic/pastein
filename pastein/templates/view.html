@@ -15,8 +15,8 @@
     <div class="container rounded-container shadow p-4">
         <div class="mb-3">
             <div class="details">
-                <div class="info d-flex flex-column">
-                    <div class="info-top">
+                <div class="info d-flex flex-column text-truncate">
+                    <div class="info-top ">
                         {% if paste.title %}
                             {{ paste.title }}
                         {% else %}
@@ -43,7 +43,7 @@
                             <div id="size">{{ paste.size|get_size }}</div>
                         </div>
                         <div class="actions flex-fill d-flex justify-content-end">
-                            {% if request.user == paste.user %}
+                            {% if is_owner %}
                                 <a href="{% url 'delete' paste.url %}" class="btn btn-secondary mx-1">Delete</a>
                                 <a href="{% url 'edit' paste.url %}" class="btn btn-secondary mx-1">Edit</a>
                             {% endif %}

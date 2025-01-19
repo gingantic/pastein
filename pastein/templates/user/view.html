@@ -1,6 +1,6 @@
 {% extends 'layouts/base.html' %}
 {% load static %}
-{% block title %} {{ user }} Paste's {% endblock %}
+{% block title %} {{ user }} paste {% endblock %}
 
 {% block content %}
 <!-- Main Content -->
@@ -10,13 +10,30 @@
             <img class="profile-picture" src="{{ user.get_profile_picture_url }}" alt="avatar" class="me-3">
             <div class="d-flex flex-column ms-1">
                 <div class="info-top">
-                    <h3>{{ user }} Paste's</h3>
+                    <h3>{{ user }} paste</h3>
                 </div>
                 <div class="info-bottom d-flex flex-row">
                     <div class="created-at me-3"><i class="fas fa-calendar-days me-2"></i>{{ user.date_joined }}</div>
                 </div>
             </div>
         </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                {% if message.tags == 'error' %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% else %}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+
         <table class="table table-hover">
             <thead>
                 <tr>
@@ -34,19 +51,32 @@
                 {% endif %}
                 {% for paste in pastes %}
                 <tr>
-                    <td><a href="{% url 'view' paste.url %}">
-                        {% if paste.title %}
-                        {{ paste.title }}
-                        {% else %}
-                        {{ "Untitled" }}
-                        {% endif %}
-                    </a></td>
+                    <td>
+                        <div class="justify-content-center" style="width: 20px; display: inline-block;">
+                            {% if paste.exposure == 'public' %}
+                            <i class="fa-solid fa-earth-americas"></i>
+                            {% elif paste.exposure == 'unlisted' %}
+                            <i class="fa-solid fa-link"></i>
+                            {% else %}
+                            <i class="fa-solid fa-lock"></i>
+                            {% endif %}
+                        </div>
+                        <a href="{% url 'view' paste.url %}">
+                            {% if paste.title %}
+                            {{ paste.title }}
+                            {% else %}
+                            {{ "Untitled" }}
+                            {% endif %}
+                        </a>
+                    </td>
                     <td>{{ paste.created_at }}</td>
                     <td>{{ paste.hits }}</td>
                     <td>
-                    {% if request.user == paste.user %}
+                    {% if is_owner %}
                         <a href="{% url 'delete' paste.url %}" class="btn btn-danger btn-sm mx-1"><i class="fas fa-trash"></i></a>
                         <a href="{% url 'edit' paste.url %}" class="btn btn-primary btn-sm mx-1"><i class="fas fa-edit"></i></a>  
+                    {% else %}
+                        <a href="{% url 'clone' paste.url %}" class="btn btn-secondary btn-sm mx-1"><i class="fas fa-clone"></i></a>
                     {% endif %}
                     </td>
                 </tr>

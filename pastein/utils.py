@@ -4,7 +4,6 @@ from django.conf import settings
 
 EMAIL_REGEX = re.compile(r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$')
 
-
 def turnstile_challenge(request):
     """Get a Turnstile challenge from Cloudflare."""
 

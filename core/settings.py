@@ -24,7 +24,7 @@ load_dotenv()
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SECRET_KEY')
+SECRET_KEY = os.getenv('SECRET_KEY','secret-key')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
@@ -106,7 +106,7 @@ STORAGES = {
             "bucket_name": os.getenv("S3_BUCKET_NAME"),
             "region_name": os.getenv("S3_REGION_NAME"),
             "endpoint_url": os.getenv("S3_ENDPOINT_URL"),
-            "querystring_auth": os.getenv("S3_QUERYSTRING_AUTH") == "True",
+            "querystring_auth": os.getenv("S3_QUERYSTRING_AUTH").lower() == "true",
             "custom_domain": os.getenv("S3_CUSTOM_DOMAIN"),
         },
     },
@@ -186,6 +186,9 @@ TURNSTILE_SITE_KEY = os.getenv('TURNSTILE_SITE_KEY')
 
 # limit post body size to 2MB
 DATA_UPLOAD_MAX_MEMORY_SIZE = 2 * 1024 * 1024
+
+# Max file size in bytes (e.g., 2MB)
+MAX_UPLOAD_SIZE = 2 * 1024 * 1024
 
 # API secret for cron job
 CRON_API_SECRET = os.getenv('CRON_SECRET', '1')

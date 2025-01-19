@@ -88,9 +88,10 @@ class PasteinContent(models.Model):
     id = models.AutoField(primary_key=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='pastein_contents')
     url = models.CharField(max_length=6, unique=True)
-    title = models.CharField(max_length=255, null=True, blank=True)
+    title = models.CharField(max_length=128, null=True, blank=True)
     content = models.TextField()
     password = models.CharField(max_length=64, null=True, blank=True)  # SHA-256 produces a 64-character hash
+    exposure = models.CharField(max_length=10, choices=[('public', 'Public'), ('unlisted', 'Unlisted'), ('private', 'Private')], default='public')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     size = models.PositiveIntegerField(default=0, null=True, blank=True)
@@ -117,24 +118,47 @@ class PasteinContent(models.Model):
         super().save(*args, **kwargs)
 
     def get_random_url(self):
+        digits = 4
         while True:
-            url = ''.join(random.choices(string.ascii_letters + string.digits, k=5))
+            url = ''.join(random.choices(string.ascii_letters + string.digits, k=digits))
             if not PasteinContent.objects.filter(url=url).exists():
                 return url
+            digits += 1
 
     def hash_password(self, password):
         return hashlib.sha256(password.encode('utf-8')).hexdigest()
 
     def check_password(self, password):
-        if not self.password:  # No password set
+        if not self.password:
             return False
         hashed_password = self.hash_password(password)
         return self.password == hashed_password
 
+    def is_viewable(self, user):
+        if self.exposure == 'private':
+            if not user.is_authenticated:
+                return False
+            if self.user != user:
+                return False
+        return True
+            
+    def is_owner(self, user):
+        if self.user != user:
+            return False
+        return True
+    
+    @classmethod
+    def get_public_pastes(cls, user):
+        return cls.objects.filter(exposure='public', user=user).defer('content', 'password')
+    
+    @classmethod
+    def get_user_pastes(cls, user):
+        return cls.objects.filter(user=user).defer('content', 'password')
+    
     # TODO: still need to be study it how it works cuz it chatGPT generate for now leave it until became trouble
     def increment_hits(self, user_ip):
         """
-        Increment hits for the paste if the IP has not exceeded the view limit (3/minute).
+        Increment hits for the paste if the IP has not exceeded the view limit (2/minute).
         """
         cache_key = f"pastein:{self.id}:views:{user_ip}"
         current_time = time.time()
@@ -143,21 +167,21 @@ class PasteinContent(models.Model):
         # Remove outdated views (older than 60 seconds)
         views = [timestamp for timestamp in views if current_time - timestamp < 60]
 
-        if len(views) < 3:  # Allow increment only if under the limit
+        if len(views) < 2:  # Allow increment only if under the limit
             views.append(current_time)
             cache.set(cache_key, views, timeout=60)  # Refresh the cache timeout
 
             # Increment the total hits in cache
             cache_key_total_hits = f"pastein:{self.id}:total_hits"
             total_hits = cache.get(cache_key_total_hits, 0)
-            cache.set(cache_key_total_hits, total_hits + 1, timeout=3600)  # Persist for an hour
+            cache.set(cache_key_total_hits, total_hits + 1, timeout=3600 * 24)  # Persist for an day
 
             # Add this paste ID to the list of active keys (if not already present)
             active_pastes_key = "pastein:active_pastes"
             active_pastes = cache.get(active_pastes_key, set())
             if self.id not in active_pastes:
                 active_pastes.add(self.id)
-                cache.set(active_pastes_key, active_pastes, timeout=3600)
+                cache.set(active_pastes_key, active_pastes, timeout=3600 * 24)
 
     @staticmethod
     def persist_hits_to_db():
@@ -187,19 +211,8 @@ class PasteinContent(models.Model):
                     paste.hits += cached_hits  # Add cached hits to the paste's total hits.
                     total_hits += cached_hits  # Accumulate the total hits for reporting.
                     updates.append(paste)  # Add the paste to the list for bulk updates.
-
-                    # Remove redundant cache recheck logic
-                    # COMMENTED OUT: This logic rechecked for new hits and adjusted cache.
-                    # new_cached_hits = cache.get(cache_key_total_hits, 0)
-                    # if new_cached_hits > cached_hits:
-                    #     cache.set(cache_key_total_hits, new_cached_hits - cached_hits, timeout=3600)
-                    #     remaining_active_pastes.add(paste.id)
-                    # elif new_cached_hits == cached_hits:
-                    #     cache.delete(cache_key_total_hits)
-                    # else:
-                    #     remaining_active_pastes.add(paste.id)
-
-                    # NEW LOGIC: Clear cache if processed, or keep it active if hits remain.
+                    
+                    # cache if processed, or keep it active if hits remain.
                     cache.delete(cache_key_total_hits)  # Clear processed hits.
                     # Check if any new hits arrived during processing.
                     if cache.get(cache_key_total_hits, 0) > 0:

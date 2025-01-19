@@ -40,6 +40,11 @@ $(document).ready(function () {
         icon.toggleClass('fa-eye fa-eye-slash');
     });
 
+    // Double click on the user dropdown to redirect to the user's profile
+    $('#userDropdown').dblclick(function() {
+        window.location.href = $('#myPaste').attr('href');
+    });
+
     $('#copy').click(function() {
         // Use the Clipboard API
         navigator.clipboard.writeText(content)

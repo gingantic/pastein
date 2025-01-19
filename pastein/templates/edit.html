@@ -34,7 +34,7 @@
             {% endif %}
             <div class="row">
                 <h3>Setting</h3>
-                <div class="col-md-6">
+                <div class="form-group col-md-6">
                     <div class="mb-3">
                         <div class="row align-items-center mb-3">
                             <label for="title" class="col-md-4 d-flex align-items-center">Title:</label>
@@ -53,6 +53,12 @@
                                     <label class="form-check-label" for="disable_password">Disable</label>
                                 </div>
                             {% endif %}
+                        </div>
+                        <div class="row align-items-center mb-2">
+                            <label for="exposure" class="col-md-4 d-flex align-items-center">Exposure:</label>
+                            <div class="col-sm-6">
+                                {{ form.exposure }}
+                            </div>
                         </div>
                         <div class="row mb-3">
                             <span class="col-md-4 d-flex align-items-center"></span>
