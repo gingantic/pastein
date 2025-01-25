@@ -74,7 +74,7 @@ Alternatively, deploy it on Vercel:
 
 > **Note:**  
 > To make the hit/view counter work, visit or using cron to `api/update-views/` with a header containing:  
-> `Authorization: Bearer <your-secret-key>`
+> `Authorization: Bearer <cron-secret-key>`
 
 ## 📖 Usage
 
@@ -89,6 +89,7 @@ Here are some planned features and improvements for Pastein:
 
 - [ ] The Last 24 Hours Pastes.
 - [ ] Improve the UI/UX.
+- [ ] Admin Panels
 - [ ] Optimize database queries for better performance.
 - [ ] Create an API for external integration (e.g., third-party apps).
 
