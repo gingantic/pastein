@@ -1,10 +1,12 @@
 from datetime import datetime
+from django.utils import timezone
 import time
 from django.db import models
 from django.contrib.auth.models import User
 import random
 import string
 import hashlib
+from django.db.models import Q
 from django.db import transaction
 from django.core.cache import cache
 from PIL import Image
@@ -12,6 +14,7 @@ import os
 import uuid
 from io import BytesIO
 from django.core.files.base import ContentFile
+from django.http import Http404
 
 from django.forms import ValidationError
 
@@ -92,6 +95,7 @@ class PasteinContent(models.Model):
     content = models.TextField()
     password = models.CharField(max_length=64, null=True, blank=True)  # SHA-256 produces a 64-character hash
     exposure = models.CharField(max_length=10, choices=[('public', 'Public'), ('unlisted', 'Unlisted'), ('private', 'Private')], default='public')
+    expires_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     size = models.PositiveIntegerField(default=0, null=True, blank=True)
@@ -133,6 +137,9 @@ class PasteinContent(models.Model):
             return False
         hashed_password = self.hash_password(password)
         return self.password == hashed_password
+    
+    def destroy(self):
+        self.delete()
 
     def is_viewable(self, user):
         if self.exposure == 'private':
@@ -140,6 +147,11 @@ class PasteinContent(models.Model):
                 return False
             if self.user != user:
                 return False
+        
+        if self.is_expired():
+            self.destroy()
+            raise Http404()
+
         return True
             
     def is_owner(self, user):
@@ -147,13 +159,36 @@ class PasteinContent(models.Model):
             return False
         return True
     
+    def is_expired(self):
+        if self.expires_at and self.expires_at < timezone.now():
+            return True
+        return False
+    
     @classmethod
     def get_public_pastes(cls, user):
-        return cls.objects.filter(exposure='public', user=user).defer('content', 'password')
+        return cls.objects.filter(
+            exposure='public',
+            user=user
+        ).filter(
+            Q(expires_at__isnull=True) | Q(expires_at__gt=timezone.now())
+        ).defer('content', 'password')
     
     @classmethod
     def get_user_pastes(cls, user):
-        return cls.objects.filter(user=user).defer('content', 'password')
+        return cls.objects.filter(
+            user=user
+        ).filter(
+            Q(expires_at__isnull=True) | Q(expires_at__gt=timezone.now())
+        ).defer('content', 'password')
+    
+    @classmethod
+    def clear_expired_pastes(cls):
+        expired_pastes = cls.objects.filter(expires_at__lt=timezone.now())
+        num_deleted, _ = expired_pastes.delete()  # Efficiently get the count
+        return {
+            'total_expired': num_deleted,
+            'timestamp': timezone.now().strftime('%Y-%m-%d %H:%M:%S')
+        }
     
     # TODO: still need to be study it how it works cuz it chatGPT generate for now leave it until became trouble
     def increment_hits(self, user_ip):
@@ -211,8 +246,8 @@ class PasteinContent(models.Model):
                     paste.hits += cached_hits  # Add cached hits to the paste's total hits.
                     total_hits += cached_hits  # Accumulate the total hits for reporting.
                     updates.append(paste)  # Add the paste to the list for bulk updates.
-                    
-                    # cache if processed, or keep it active if hits remain.
+
+                    # Clear cache if processed, or keep it active if hits remain.
                     cache.delete(cache_key_total_hits)  # Clear processed hits.
                     # Check if any new hits arrived during processing.
                     if cache.get(cache_key_total_hits, 0) > 0:

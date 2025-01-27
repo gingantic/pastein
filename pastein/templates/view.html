@@ -32,6 +32,9 @@
                             {% endif %}
                         </div>
                         <div class="created-at me-3"><i class="fas fa-calendar-days me-2"></i>{{ paste.created_at }}</div>
+                        {% if paste.expires_at %}
+                            <div class="expires-at me-3"><i class="fa-regular fa-calendar-xmark me-2"></i>{{ paste.expires_at | time_until }}</div>
+                        {% endif %}
                         <div class="views-count me-3"><i class="fa-regular fa-eye me-2"></i>{{ paste.hits }}</div>
                     </div>
                 </div>

@@ -89,7 +89,7 @@ Here are some planned features and improvements for Pastein:
 
 - [ ] The Last 24 Hours Pastes.
 - [ ] Improve the UI/UX.
-- [ ] Admin Panels
+- [ ] Admin Panels.
 - [ ] Optimize database queries for better performance.
 - [ ] Create an API for external integration (e.g., third-party apps).
 

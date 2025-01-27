@@ -1,8 +1,9 @@
 from django import template
-import json
+import math
 from datetime import datetime
 from zoneinfo import ZoneInfo
 import zoneinfo
+from django.utils import timezone
 
 zoneinfo.available_timezones()
 
@@ -38,3 +39,29 @@ def get_size(size):
         return f"{size / 1024:.2f} KB"
     else:
         return f"{size / (1024 * 1024):.2f} MB"
+    
+# usage: {{ datetime | time_until }}
+@register.filter
+def time_until(value):
+    now = timezone.now()
+    
+    if value <= now:
+        return "just now"  # Or "expired" if past
+    
+    diff = value - now
+    total_seconds = diff.total_seconds()
+
+    # Round UP calculations
+    days = math.ceil(total_seconds / 86400)  # 86400s = 1 day
+    if days > 0:
+        return f"{days} Day{'s' if days != 1 else ''}"
+    
+    hours = math.ceil(total_seconds / 3600)  # 3600s = 1 hour
+    if hours > 0:
+        return f"{hours} Hour{'s' if hours != 1 else ''}"
+    
+    minutes = math.ceil(total_seconds / 60)  # 60s = 1 minute
+    if minutes > 0:
+        return f"{minutes} Min"
+    
+    return "just now"

@@ -39,3 +39,14 @@ def update_views(request):
     data = PasteinContent.persist_hits_to_db()
 
     return HttpResponse(set_json_response(data, 200, 'Hits updated successfully.'), content_type='application/json')
+
+@csrf_exempt
+def clear_expired_pastes(request):
+    auth = request.headers.get('Authorization')
+
+    if auth != 'Bearer ' + settings.CRON_API_SECRET:
+        return HttpResponse(set_json_response(None, 401), status=401, content_type='application/json')
+
+    data = PasteinContent.clear_expired_pastes()
+
+    return HttpResponse(set_json_response(data, 200, 'Expired pastes cleared successfully.'), content_type='application/json')

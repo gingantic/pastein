@@ -1,5 +1,6 @@
 {% extends 'layouts/base.html' %}
 {% load static %}
+{% load custom_tags %}
 {% block title %} {{ user }} paste {% endblock %}
 
 {% block content %}
@@ -39,6 +40,7 @@
                 <tr>
                     <th scope="col">Title</th>
                     <th scope="col">Created</th>
+                    <th scope="col">Expire</th>
                     <th scope="col">Hits / Views</th>
                     <th scope="col">Actions</th>
                 </tr>
@@ -46,7 +48,7 @@
             <tbody>
                 {% if not pastes %}
                 <tr>
-                    <td colspan="4" class="text-center">No pastes found</td>
+                    <td colspan="5" class="text-center">No pastes found</td>
                 </tr>
                 {% endif %}
                 {% for paste in pastes %}
@@ -70,6 +72,11 @@
                         </a>
                     </td>
                     <td>{{ paste.created_at }}</td>
+                    {% if paste.expires_at %}
+                        <td>{{ paste.expires_at | time_until }}</td>
+                    {% else %}
+                        <td>Never</td>
+                    {% endif %}
                     <td>{{ paste.hits }}</td>
                     <td>
                     {% if is_owner %}
