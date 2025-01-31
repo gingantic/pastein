@@ -21,6 +21,11 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include("pastein.urls"), name='pastein'),
     path('api/', include("api.urls"), name='api'),
+    path('', include("pastein.urls"), name='pastein'),
 ]
+
+if settings.DEBUG:  # Only include in development mode
+    urlpatterns += [
+        path('__debug__/', include('debug_toolbar.urls')),
+    ]

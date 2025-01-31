@@ -28,5 +28,5 @@ urlpatterns += [
 ]
 
 urlpatterns += [
-    path('robots.txt', views.robots, name='robots')
+    path('robots.txt', views.robots, name='robots'),
 ]

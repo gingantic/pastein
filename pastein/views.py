@@ -11,11 +11,15 @@ from .utils import validate_email, turnstile_challenge
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import cache_page
 from traceback import print_exc
+from django.conf import settings
 
 class login_view(LoginView):
     template_name = 'login.html'
 
     def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return redirect('index')
+        
         if request.method == 'POST':
             turnstile = turnstile_challenge(request)
 
@@ -160,6 +164,7 @@ def user_profile_view(request):
                 messages.error(request, 'Invalid image file.')
             except Exception:
                 print_exc()
+                print(settings.STORAGES)
                 messages.error(request, 'An error occurred while updating your profile picture.')        
 
     return render(request, 'user/profile.html', {'user': user})

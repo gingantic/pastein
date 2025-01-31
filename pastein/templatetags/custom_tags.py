@@ -1,5 +1,4 @@
 from django import template
-import math
 from datetime import datetime
 from zoneinfo import ZoneInfo
 import zoneinfo
@@ -51,16 +50,15 @@ def time_until(value):
     diff = value - now
     total_seconds = diff.total_seconds()
 
-    # Round UP calculations
-    days = math.ceil(total_seconds / 86400)  # 86400s = 1 day
+    days = diff.days
     if days > 0:
         return f"{days} Day{'s' if days != 1 else ''}"
     
-    hours = math.ceil(total_seconds / 3600)  # 3600s = 1 hour
+    hours = int(total_seconds // 3600)
     if hours > 0:
         return f"{hours} Hour{'s' if hours != 1 else ''}"
     
-    minutes = math.ceil(total_seconds / 60)  # 60s = 1 minute
+    minutes = int(total_seconds // 60)
     if minutes > 0:
         return f"{minutes} Min"
     

@@ -41,14 +41,36 @@ def resize_image(image_field, size=(300, 300)):
     # Open the original image
     img = Image.open(image_field)
 
+    # Handle transparency and convert to RGB
     if img.mode in ("RGBA", "LA") or (img.mode == "P" and "transparency" in img.info):
-        # Create a black background
         black_background = Image.new("RGB", img.size, (0, 0, 0))
-        # Composite the image onto the black background
         img = Image.alpha_composite(black_background.convert("RGBA"), img).convert("RGB")
     elif img.mode != "RGB":
         img = img.convert("RGB")
 
+    # Get original dimensions
+    original_width, original_height = img.size
+
+    # Calculate cropping coordinates to get a 1:1 square from the center
+    if original_width > original_height:
+        # Landscape: crop width to match height
+        crop_size = original_height
+        left = (original_width - crop_size) // 2
+        top = 0
+        right = left + crop_size
+        bottom = crop_size
+    else:
+        # Portrait or square: crop height to match width
+        crop_size = original_width
+        left = 0
+        top = (original_height - crop_size) // 2
+        right = crop_size
+        bottom = top + crop_size
+
+    # Crop the image to the calculated area
+    img = img.crop((left, top, right, bottom))
+
+    # Resize the cropped image to the target size
     img = img.resize(size, Image.Resampling.LANCZOS)
 
     # Save the resized image to a BytesIO object
@@ -137,9 +159,6 @@ class PasteinContent(models.Model):
             return False
         hashed_password = self.hash_password(password)
         return self.password == hashed_password
-    
-    def destroy(self):
-        self.delete()
 
     def is_viewable(self, user):
         if self.exposure == 'private':
@@ -149,7 +168,7 @@ class PasteinContent(models.Model):
                 return False
         
         if self.is_expired():
-            self.destroy()
+            self.delete()
             raise Http404()
 
         return True

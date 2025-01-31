@@ -8,10 +8,12 @@ python3 -m venv venv
 # activate the virtual environment
 source venv/bin/activate
 
-python3 -m pip install -r requirements.txt
+python3 -m pip install --no-cache-dir -r requirements.txt
 python3 manage.py collectstatic --noinput
 python3 manage.py makemigrations
+python3 manage.py makemigrations pastein
 python3 manage.py migrate
+python3 manage.py migrate pastein
 
 # fix for A Serverless Function has exceeded the unzipped maximum size of 250 MB
 rm -rf venv

@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'widget_tweaks',
+    'storages',
     'pastein'
 ]
 
@@ -99,7 +100,7 @@ STORAGES = {
         "BACKEND": os.getenv("STATICFILES_BACKEND"),
     },
     "default": {
-        "BACKEND": os.getenv("DEFAULT_BACKEND"),
+        "BACKEND": os.getenv("DEFAULT_BACKEND", "storages.backends.s3.S3Storage"),
         "OPTIONS": {
             "access_key": os.getenv("S3_ACCESS_KEY"),
             "secret_key": os.getenv("S3_SECRET_KEY"),
@@ -108,6 +109,7 @@ STORAGES = {
             "endpoint_url": os.getenv("S3_ENDPOINT_URL"),
             "querystring_auth": os.getenv("S3_QUERYSTRING_AUTH").lower() == "true",
             "custom_domain": os.getenv("S3_CUSTOM_DOMAIN"),
+            "signature_version": os.getenv("S3_SIGNATURE_VERSION", "s3v4"),
         },
     },
 }
@@ -188,7 +190,15 @@ TURNSTILE_SITE_KEY = os.getenv('TURNSTILE_SITE_KEY')
 DATA_UPLOAD_MAX_MEMORY_SIZE = 2 * 1024 * 1024
 
 # Max file size in bytes (e.g., 2MB)
-MAX_UPLOAD_SIZE = 2 * 1024 * 1024
+MAX_UPLOAD_SIZE = 2 * 1024 * 1024  # 5MB
 
 # API secret for cron job
 CRON_API_SECRET = os.getenv('CRON_SECRET', '1')
+
+if DEBUG:
+    INSTALLED_APPS += ['debug_toolbar']
+    MIDDLEWARE += ['debug_toolbar.middleware.DebugToolbarMiddleware']
+    INTERNAL_IPS = [
+        '127.0.0.1',
+        '::1',  # For IPv6
+    ]
