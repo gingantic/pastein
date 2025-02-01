@@ -2,23 +2,26 @@
 {% load static %}
 {% load widget_tweaks %}
 
-{% block title %} Edit
-{% if form.instance.title %}
-    {{ form.instance.title }}
-{% else %}
-    {{ form.instance.url }}
-{% endif %}  {% endblock %}
+{% block title %}
+{% if "edit" in request.path %}
+    Edit
+{% elif "clone" in request.path %}
+    Clone
+{% endif %}
+{{ form.instance.title|default:form.instance.url }}
+{% endblock %}
 
 {% block content %}
 <!-- Main Content -->
 <main class="my-1">
     <div class="container rounded-container shadow p-4">
-        <h3 class="mb-3">Edit 
-            {% if form.instance.title %}
-                {{ form.instance.title }}
-            {% else %}
-                {{ form.instance.url }}
+        <h3 class="mb-3">
+            {% if "edit" in request.path %}
+                Edit
+            {% elif "clone" in request.path %}
+                Clone
             {% endif %}
+            {{ form.instance.title|default:form.instance.url }}
         </h3>
         <form action="" method="post">
             {% csrf_token %}

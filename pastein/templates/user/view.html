@@ -8,7 +8,7 @@
 <main class="my-1">
     <div class="container rounded-container shadow p-4">
         <div class="d-flex align-items-center mb-3">
-            <img class="profile-picture" src="{{ user.get_profile_picture_url }}" alt="avatar" class="me-3">
+            <img src="{{ user.get_profile_picture_url }}" alt="Profile Picture" class="profile-picture img-thumbnail">
             <div class="d-flex flex-column ms-1">
                 <div class="info-top">
                     <h3>{{ user }} paste</h3>
@@ -82,9 +82,8 @@
                     {% if is_owner %}
                         <a href="{% url 'delete' paste.url %}" class="btn btn-danger btn-sm mx-1"><i class="fas fa-trash"></i></a>
                         <a href="{% url 'edit' paste.url %}" class="btn btn-primary btn-sm mx-1"><i class="fas fa-edit"></i></a>  
-                    {% else %}
-                        <a href="{% url 'clone' paste.url %}" class="btn btn-secondary btn-sm mx-1"><i class="fas fa-clone"></i></a>
                     {% endif %}
+                    <a href="{% url 'clone' paste.url %}" class="btn btn-secondary btn-sm mx-1"><i class="fas fa-clone"></i></a>
                     </td>
                 </tr>
                 {% endfor %}

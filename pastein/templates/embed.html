@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ paste.title|default:"Untitled" }} - Pastein Embed</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            background-color: #ffffff;
+        }
+
+        .embed-container {
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .embed-header {
+            padding: 8px;
+            background-color: #f5f5f5;
+            border-bottom: 1px solid #ccc;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .embed-title {
+            font-weight: bold;
+            margin-right: 10px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .embed-link {
+            color: #0366d6;
+            text-decoration: none;
+            font-size: 12px;
+        }
+
+        .embed-content {
+            padding: 10px;
+            overflow: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        /* Dark mode styles */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background-color: #1a1a1a;
+                color: #ffffff;
+            }
+
+            .embed-container {
+                border-color: #333;
+            }
+
+            .embed-header {
+                background-color: #2d2d2d;
+                border-color: #333;
+            }
+
+            .embed-link {
+                color: #58a6ff;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="embed-container">
+        <div class="embed-header">
+            <div class="embed-title">
+                {{ paste.title|default:"Untitled" }}
+            </div>
+            <a href="{% url 'view' paste.url %}" target="_blank" class="embed-link">View on Pastein</a>
+        </div>
+        <div class="embed-content">{{ paste.content }}</div>
+    </div>
+</body>
+</html> 

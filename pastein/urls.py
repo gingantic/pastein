@@ -25,6 +25,7 @@ urlpatterns += [
     path('edit/<str:slug>/', views.edit_paste, name='edit'),
     path('clone/<str:slug>/', views.clone_paste, name='clone'),
     path('download/<str:slug>/', views.download_paste, name='download'),
+    path('embed/<str:slug>/', views.embed_paste, name='embed'),
 ]
 
 urlpatterns += [

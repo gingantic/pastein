@@ -2,7 +2,7 @@ from django import forms
 from .models import PasteinContent
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from datetime import datetime, timedelta
+from datetime import timedelta
 from django.utils import timezone
 
 LIMIT_SIZE_PASTEIN = 1.5 * 1024 * 1024  # 1.5 MB
@@ -31,7 +31,7 @@ class PasteinForm(forms.ModelForm):
 
     class Meta:
         model = PasteinContent
-        fields = ['content', 'title', 'password', 'exposure']
+        fields = ['content', 'title', 'exposure']
 
     def __init__(self, *args, **kwargs):
         # Extract user from kwargs before calling parent's __init__
@@ -78,8 +78,10 @@ class PasteinForm(forms.ModelForm):
         if title and len(title) > 128:
             raise forms.ValidationError('Title is too long. Maximum length is 255 characters.')
 
-        if password and len(password) > 32:
-            raise forms.ValidationError('Password is too long. Maximum length is 32 characters.')
+        if password:
+            if len(password) > 32:
+                raise forms.ValidationError('Password is too long. Maximum length is 32 characters.')
+            self.instance.password = password
 
         if expire:
             if expire == 'nvr':

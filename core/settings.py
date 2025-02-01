@@ -32,7 +32,8 @@ DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 ALLOWED_HOSTS = ['*']
 
 # Application definition
-
+installed_apps = os.getenv('INSTALLED_APPS')
+additional_apps = installed_apps.split(',') if installed_apps else []
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -41,8 +42,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'widget_tweaks',
-    'storages',
-    'pastein'
+    'pastein',
+    *additional_apps
 ]
 
 MIDDLEWARE = [
@@ -91,6 +92,7 @@ DATABASES = {
         'PASSWORD': os.getenv('DATABASE_PASSWORD'),
         'HOST': os.getenv('DATABASE_HOST', 'localhost'),
         'PORT': os.getenv('DATABASE_PORT', '5432'),
+        'CONN_MAX_AGE': 600,  # Keep DB connections alive for 10 minutes
     }
 }
 
@@ -132,6 +134,10 @@ CACHES = {
 # Django sessions are stored in Redis
 SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 SESSION_CACHE_ALIAS = 'default'
+SESSION_COOKIE_SECURE = True
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 120  # 120 days
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -149,6 +155,12 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
+]
+
+PASSWORD_HASHERS = [
+    'django.contrib.auth.hashers.PBKDF2PasswordHasher',
+    'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
+    'django.contrib.auth.hashers.BCryptSHA256PasswordHasher'
 ]
 
 # Internationalization
@@ -190,7 +202,7 @@ TURNSTILE_SITE_KEY = os.getenv('TURNSTILE_SITE_KEY')
 DATA_UPLOAD_MAX_MEMORY_SIZE = 2 * 1024 * 1024
 
 # Max file size in bytes (e.g., 2MB)
-MAX_UPLOAD_SIZE = 2 * 1024 * 1024  # 5MB
+MAX_UPLOAD_SIZE = 2 * 1024 * 1024
 
 # API secret for cron job
 CRON_API_SECRET = os.getenv('CRON_SECRET', '1')

@@ -1,13 +1,10 @@
 from datetime import datetime
 from django.utils import timezone
 import time
-from django.db import models
+from django.db import models, IntegrityError, transaction
 from django.contrib.auth.models import User
-import random
 import string
-import hashlib
 from django.db.models import Q
-from django.db import transaction
 from django.core.cache import cache
 from PIL import Image
 import os
@@ -15,8 +12,9 @@ import uuid
 from io import BytesIO
 from django.core.files.base import ContentFile
 from django.http import Http404
-
+import secrets
 from django.forms import ValidationError
+from django.contrib.auth.hashers import identify_hasher, make_password, check_password
 
 # Create your models here.
 
@@ -82,7 +80,7 @@ def resize_image(image_field, size=(300, 300)):
 
 def profile_picture_upload_path(instance, filename):
     # Generate a new filename using UUID to ensure uniqueness
-    new_filename = f"{instance.user.username}_{uuid.uuid4().hex}.jpg"
+    new_filename = f"{instance.user.username}/{uuid.uuid4().hex}.jpg"
     return os.path.join('profile_pictures/', new_filename)
 
 class ProfileUser(models.Model):
@@ -112,10 +110,10 @@ class ProfileUser(models.Model):
 class PasteinContent(models.Model):
     id = models.AutoField(primary_key=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='pastein_contents')
-    url = models.CharField(max_length=6, unique=True)
+    url = models.CharField(max_length=32, unique=True)
     title = models.CharField(max_length=128, null=True, blank=True)
     content = models.TextField()
-    password = models.CharField(max_length=64, null=True, blank=True)  # SHA-256 produces a 64-character hash
+    password = models.CharField(max_length=255, null=True, blank=True)
     exposure = models.CharField(max_length=10, choices=[('public', 'Public'), ('unlisted', 'Unlisted'), ('private', 'Private')], default='public')
     expires_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -132,39 +130,61 @@ class PasteinContent(models.Model):
     def save(self, *args, **kwargs):
         # Generate a random URL if not already set
         if not self.url:
-            self.url = self.get_random_url()
+            self.url = self.generate_url()
 
         # Hash the password before saving if it's not already hashed
-        if self.password and len(self. password) != 64:  # SHA-256 hash is always 64 characters long
-            self.password = self.hash_password(self.password)
+        if self.password and not self.is_hashed(self.password):
+            self.password = make_password(self.password, hasher='pbkdf2_sha1') # NOTE: U can change the hasher to stronger hasher if you want
 
         # Calculate the size of the content
         self.size = len(self.content.encode('utf-8'))
 
         super().save(*args, **kwargs)
 
-    def get_random_url(self):
-        digits = 4
-        while True:
-            url = ''.join(random.choices(string.ascii_letters + string.digits, k=digits))
-            if not PasteinContent.objects.filter(url=url).exists():
-                return url
-            digits += 1
+    def generate_url(self):
+        MAX_ATTEMPTS_PER_LENGTH = 5
+        MAX_LENGTH = 16
+        BASE_LENGTH = 4
 
-    def hash_password(self, password):
-        return hashlib.sha256(password.encode('utf-8')).hexdigest()
+        # Try increasing lengths from BASE_LENGTH to MAX_LENGTH
+        for length in range(BASE_LENGTH, MAX_LENGTH + 1):
+            for _ in range(MAX_ATTEMPTS_PER_LENGTH):
+                url = self.generate_secure_url(length)
+                if self.is_url_available(url):
+                    return url
+
+        raise RuntimeError("Failed to generate unique URL after exhaustive attempts")
+
+    def generate_secure_url(self, length):
+        return ''.join(
+            secrets.choice(string.ascii_letters + string.digits)
+            for _ in range(length)
+        )
+
+    def is_url_available(self, url):
+        try:
+            with transaction.atomic():
+                return not PasteinContent.objects.filter(url=url).exists()
+        except IntegrityError:
+            return False
+
+    def is_hashed(self, password):
+        try:
+            identify_hasher(password)
+            return True
+        except ValueError:
+            return False
 
     def check_password(self, password):
         if not self.password:
             return False
-        hashed_password = self.hash_password(password)
-        return self.password == hashed_password
+        return check_password(password, self.password)
 
     def is_viewable(self, user):
         if self.exposure == 'private':
             if not user.is_authenticated:
                 return False
-            if self.user != user:
+            if not self.is_owner(user):
                 return False
         
         if self.is_expired():
@@ -182,7 +202,14 @@ class PasteinContent(models.Model):
         if self.expires_at and self.expires_at < timezone.now():
             return True
         return False
-    
+
+    @classmethod
+    def get_paste(cls, url):
+        try:
+            return cls.objects.get(url=url)
+        except cls.DoesNotExist:
+            raise Http404()
+
     @classmethod
     def get_public_pastes(cls, user):
         return cls.objects.filter(

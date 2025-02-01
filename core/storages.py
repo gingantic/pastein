@@ -31,14 +31,14 @@ class S3Boto3Storage(Storage):
         self.access_key = access_key if access_key is not None else getattr(settings, 'AWS_ACCESS_KEY_ID', '')
         self.secret_key = secret_key if secret_key is not None else getattr(settings, 'AWS_SECRET_ACCESS_KEY', '')
         self.bucket_name = bucket_name if bucket_name is not None else getattr(settings, 'AWS_STORAGE_BUCKET_NAME', '')
-        self.region_name = region_name if region_name is not None else getattr(settings, 'AWS_S3_REGION_NAME', None)
-        self.custom_domain = custom_domain if custom_domain is not None else getattr(settings, 'AWS_S3_CUSTOM_DOMAIN', None)
+        self.region_name = region_name if region_name is not None else getattr(settings, 'AWS_REGION_NAME', None)
+        self.custom_domain = custom_domain if custom_domain is not None else getattr(settings, 'AWS_CUSTOM_DOMAIN', None)
         self.default_acl = default_acl if default_acl is not None else getattr(settings, 'AWS_DEFAULT_ACL', None)
         self.querystring_auth = querystring_auth if querystring_auth is not None else getattr(settings, 'AWS_QUERYSTRING_AUTH', False)
-        self.url_expire = url_expire if url_expire is not None else getattr(settings, 'AWS_S3_URL_EXPIRE', 3600)
+        self.url_expire = url_expire if url_expire is not None else getattr(settings, 'AWS_URL_EXPIRE', 3600)
         self.location = location.strip('/') if location else getattr(settings, 'AWS_LOCATION', '').strip('/')
-        self.signature_version = signature_version or getattr(settings, 'AWS_S3_SIGNATURE_VERSION', 's3v4')
-        self.endpoint_url = endpoint_url or getattr(settings, 'AWS_S3_ENDPOINT_URL', None)
+        self.signature_version = signature_version or getattr(settings, 'AWS_SIGNATURE_VERSION', 's3v4')
+        self.endpoint_url = endpoint_url or getattr(settings, 'AWS_ENDPOINT_URL', None)
 
         # Initialize the S3 session and client
         self.session = boto3.session.Session(
@@ -88,6 +88,9 @@ class S3Boto3Storage(Storage):
         key_name = self._full_path(name)
         content.file.seek(0)
         file_data = content.file.read()  # Read once and store
+
+        if not file_data:
+            raise ValueError("File data is empty")
 
         # print(f"Original File: {file_data[:100]}...")
         # original_checksum = self.calculate_checksum(content.file)
@@ -142,7 +145,10 @@ class S3Boto3Storage(Storage):
         path = self._full_path(path)
         response = self.s3_client.list_objects_v2(Bucket=self.bucket_name, Prefix=path)
         directories, files = set(), []
-        
+
+        if 'Contents' not in response:
+            return [], []
+
         for obj in response.get('Contents', []):
             key = obj['Key']
             relative_path = key[len(path):].lstrip('/')

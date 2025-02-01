@@ -63,50 +63,53 @@ def register_view(request):
 
 def logout_view(request):
     logout(request)
+    request.session.flush()
     return redirect('index')
 
 def index(request):
-    if request.method == 'POST':
-        form = PasteinForm(request.POST, user=request.user)
+    form = PasteinForm(request.POST if request.POST else None, user=request.user)
 
+    if request.method == 'POST':
         if form.is_valid():
             form.instance.user = request.user if request.user.is_authenticated else None
             form.save()
         elif form.errors:
             return render(request, 'index.html', {'form': form})
+        
+        if form.instance.password:
+            request.session[form.instance.url] = form.cleaned_data.get('password')
 
         return redirect("view", slug=form.instance.url)
 
-    return render(request, 'index.html', {'form': PasteinForm(user=request.user)})
+    return render(request, 'index.html', {'form': form})
 
 def view(request, slug):
-    paste = get_object_or_404(PasteinContent, url=slug)
+    paste = PasteinContent.get_paste(slug)
 
     if not paste.is_viewable(request.user):
         raise PermissionDenied()
 
     ip = request.META.get('HTTP_CF_FORWARDED_FOR', request.META.get('REMOTE_ADDR'))
+    is_owner = paste.is_owner(request.user)
 
-    if request.method == 'POST':
-        password = request.POST.get('password')
-
-        if paste.check_password(password):
-            return render(request, 'view.html', {'paste': paste})
+    if paste.password and not is_owner:
+        if request.method == 'POST':
+            password = request.POST.get('password')
         else:
+            password = request.session.pop(paste.url, None)
+
+            if not password:
+                return render(request, 'password.html', {'paste_url': paste.url})
+        
+        if not paste.check_password(password):
             messages.error(request, 'Invalid password!')
             return render(request, 'password.html', {'paste_url': paste.url})
-        
-    if paste.password:
-        return render(request, 'password.html', {'paste_url': paste.url})
-    
-    is_owner = request.user == paste.user
 
     paste.increment_hits(ip)
-
     return render(request, 'view.html', {'paste': paste, 'is_owner': is_owner})
 
 def raw(request, slug):
-    paste = get_object_or_404(PasteinContent, url=slug)
+    paste = PasteinContent.get_paste(slug)
 
     if not paste.is_viewable(request.user):
         raise PermissionDenied()
@@ -118,8 +121,7 @@ def raw(request, slug):
 
     paste.increment_hits(ip)
 
-    content = paste.content
-    return HttpResponse(content, content_type='text/plain; charset=utf-8')
+    return HttpResponse(paste.content, content_type='text/plain; charset=utf-8')
 
 def user_view(request, username):
     user = get_object_or_404(User, username=username)
@@ -171,7 +173,7 @@ def user_profile_view(request):
 
 @login_required
 def delete_paste(request, slug):
-    paste = get_object_or_404(PasteinContent, url=slug)
+    paste = PasteinContent.get_paste(slug)
 
     if not paste.is_viewable(request.user):
         raise PermissionDenied('You do not have permission to view this paste.')
@@ -186,7 +188,7 @@ def delete_paste(request, slug):
 
 @login_required()
 def edit_paste(request, slug):
-    paste = get_object_or_404(PasteinContent, url=slug)
+    paste = PasteinContent.get_paste(slug)
 
     if not paste.is_viewable(request.user):
         raise PermissionDenied('You do not have permission to view this paste.')
@@ -215,8 +217,6 @@ def edit_paste(request, slug):
 
         for error in form.errors.values():
             messages.error(request, ', '.join(error))
-    
-    paste.password = None
 
     return render(request, 'edit.html', {
         'form': PasteinForm(instance=paste, user=request.user),
@@ -224,10 +224,13 @@ def edit_paste(request, slug):
     })
 
 def clone_paste(request, slug):
-    paste = get_object_or_404(PasteinContent, url=slug)
+    paste = PasteinContent.get_paste(slug)
 
     if not paste.is_viewable(request.user):
-        raise PermissionDenied()
+        raise PermissionDenied('You do not have permission to view this paste.')
+    
+    if not paste.is_owner(request.user):
+        raise PermissionDenied('You are not the owner of this paste.')
 
     if request.method == 'POST':
         form = PasteinForm(request.POST, user=request.user)
@@ -240,26 +243,30 @@ def clone_paste(request, slug):
             for error in form.errors.values():
                 messages.error(request, ', '.join(error))
         
-    paste.password = None
     return render(request, 'edit.html', {'form': PasteinForm(instance=paste, user=request.user)})
 
 def download_paste(request, slug):
-    paste = get_object_or_404(PasteinContent, url=slug)
+    paste = PasteinContent.get_paste(slug)
 
     if not paste.is_viewable(request.user):
         raise PermissionDenied()
 
     if paste.password:
         return redirect('view', slug=slug)
-    
-    if paste.title:
-        filename = paste.title
-    else:
-        filename = slug
+
+    filename = paste.title or paste.url
 
     response = HttpResponse(paste.content, content_type='text/plain; charset=utf-8')
     response['Content-Disposition'] = f'attachment; filename="{filename}.txt"'
     return response
+
+def embed_paste(request, slug):
+    paste = PasteinContent.get_paste(slug)
+
+    if not paste.is_viewable(request.user) or paste.password:
+        raise PermissionDenied()
+
+    return render(request, 'embed.html', {'paste': paste})
 
 @cache_page(60 * 60)
 def terms(request):
