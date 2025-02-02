@@ -15,6 +15,7 @@ from django.http import Http404
 import secrets
 from django.forms import ValidationError
 from django.contrib.auth.hashers import identify_hasher, make_password, check_password
+from .utils import PasteinPasswordHasher, clean_custom_url
 
 # Create your models here.
 
@@ -91,6 +92,7 @@ class ProfileUser(models.Model):
         null=True,
         validators=[validate_image_file]
     )
+    hidden_profile = models.BooleanField(default=False)
     updated_at = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
@@ -106,6 +108,9 @@ class ProfileUser(models.Model):
         if self.profile_picture:
             return self.profile_picture.url
         return '/static/pastein/images/default_profile_picture.png'
+    
+    def get_profile_visibility(self):
+        return self.hidden_profile
 
 class PasteinContent(models.Model):
     id = models.AutoField(primary_key=True)
@@ -128,13 +133,24 @@ class PasteinContent(models.Model):
         return self.url
 
     def save(self, *args, **kwargs):
+        custom_url = getattr(self, 'custom_url', None)
+
+        # Check if the user is allowed to use a custom URL
+        if custom_url and self.is_user_allowed_custom_url():
+            custom_url = clean_custom_url(custom_url)
+            if self.is_url_available(custom_url):
+                self.url = custom_url
+            else:
+                if self.url != custom_url:
+                    raise ValidationError('Custom URL is already taken.')
+            
         # Generate a random URL if not already set
         if not self.url:
             self.url = self.generate_url()
 
         # Hash the password before saving if it's not already hashed
         if self.password and not self.is_hashed(self.password):
-            self.password = make_password(self.password, hasher='pbkdf2_sha1') # NOTE: U can change the hasher to stronger hasher if you want
+            self.password = make_password(self.password, hasher=PasteinPasswordHasher()) # NOTE: U can change the hasher to stronger hasher if you want
 
         # Calculate the size of the content
         self.size = len(self.content.encode('utf-8'))
@@ -202,6 +218,19 @@ class PasteinContent(models.Model):
         if self.expires_at and self.expires_at < timezone.now():
             return True
         return False
+    
+    def is_user_allowed_custom_url(self, user=None):
+        user = user or self.user
+        if not user.is_authenticated:
+            return False
+        
+        if user.is_superuser:
+            return True
+
+        if user.is_staff:
+            return True
+        
+        return False
 
     @classmethod
     def get_paste(cls, url):
@@ -212,12 +241,15 @@ class PasteinContent(models.Model):
 
     @classmethod
     def get_public_pastes(cls, user):
+        if ProfileUser.objects.filter(user=user, hidden_profile=True).exists():
+            return []
+        
         return cls.objects.filter(
             exposure='public',
             user=user
         ).filter(
             Q(expires_at__isnull=True) | Q(expires_at__gt=timezone.now())
-        ).defer('content', 'password')
+        ).defer('content')
     
     @classmethod
     def get_user_pastes(cls, user):
@@ -225,7 +257,7 @@ class PasteinContent(models.Model):
             user=user
         ).filter(
             Q(expires_at__isnull=True) | Q(expires_at__gt=timezone.now())
-        ).defer('content', 'password')
+        ).defer('content')
     
     @classmethod
     def clear_expired_pastes(cls):

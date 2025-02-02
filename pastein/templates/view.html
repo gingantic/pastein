@@ -26,6 +26,9 @@
                             <div class="expires-at me-3"><i class="fa-regular fa-calendar-xmark me-2"></i>{{ paste.expires_at | time_until }}</div>
                         {% endif %}
                         <div class="views-count me-3"><i class="fa-regular fa-eye me-2"></i>{{ paste.hits }}</div>
+                        {% if paste.password %}
+                            <div class="password-protected me-3"><i class="fa-solid fa-key me-2"></i>Password Protected</div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -40,13 +43,15 @@
                                 <a href="{% url 'delete' paste.url %}" class="btn btn-secondary mx-1">Delete</a>
                                 <a href="{% url 'edit' paste.url %}" class="btn btn-secondary mx-1">Edit</a>
                             {% endif %}
-                            <button class="btn btn-secondary mx-1 dropdown-toggle" type="button" id="embedDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                Embed
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="embedDropdown">
-                                <li class="d-inline-block"><button class="btn btn-secondary mx-1" id="copyIframe" type="button">Copy iframe Tag</button></li>
-                                <li class="d-inline-block"><button class="btn btn-secondary mx-1" id="copyUrl" type="button">Copy URL</button></li>
-                            </ul>
+                            {% if not paste.password %}
+                                <button class="btn btn-secondary mx-1 dropdown-toggle" type="button" id="embedDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Embed
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="embedDropdown">
+                                    <li class="d-inline-block"><button class="btn btn-secondary mx-1" id="copyIframe" type="button">Copy iframe Tag</button></li>
+                                    <li class="d-inline-block"><button class="btn btn-secondary mx-1" id="copyUrl" type="button">Copy URL</button></li>
+                                </ul>
+                            {% endif %}
                             <a href="{% url 'download' paste.url %}" class="btn btn-secondary mx-1">Download</a>
                             <a href="{% url 'clone' paste.url %}" class="btn btn-secondary mx-1">Clone</a>
                             <button type="button" class="btn btn-secondary mx-1" id="copy">Copy</button>

@@ -1,17 +1,19 @@
 # Pastein
 
-Pastein is a modern, feature-rich clone of Pastebin created for practice and learning purposes. It allows users to store, share, and manage text snippets online effortlessly. Built with Django, a high-level Python web framework, Pastein includes robust functionality such as user authentication, paste visibility settings, CAPTCHA protection, and more.
+Pastein is a modern, feature-rich clone of Pastebin created for practice and learning purposes. It allows users to store, share, and manage text snippets online effortlessly. Built with Django, a high-level Python web framework.
 
 ## 🌟 Features
 
 - **User Authentication:** Login, registration, and logout functionality.
-- **Paste Management:** Create, view, edit, and delete pastes.
+- **Paste Management:** Create, view, edit, expired, and delete pastes.
 - **Visibility Options:** Set paste visibility to public, unlisted, or private.
 - **Secure Pastes:** Option to password-protect your pastes.
 - **Profile Management:** Update your profile and upload a profile picture.
 - **CAPTCHA Protection:** Integrated Cloudflare Turnstile to prevent spam.
 - **Dark Mode:** User-friendly dark mode support for enhanced usability.
 - **Responsive Design:** Fully responsive design built with Bootstrap.
+- **Embedded Features:** Embedded your text to your website.
+- **Fast and Secure???**
 
 ## 🌐 Live Demo
 
@@ -35,15 +37,17 @@ Follow these steps to set up the Pastein project locally:
     cd pastein
     ```
 
-2. **Create a virtual environment and activate it:**
+2. **Create a virtual environment:**
     ```sh
     python3 -m venv venv
-    source venv/bin/activate
+    source venv/bin/activate  # Linux/macOS
+    venv\Scripts\activate     # Windows
     ```
 
 3. **Install the required dependencies:**
     ```sh
     pip install -r requirements.txt
+    pip install -r requirements-debug.txt # optional: for debugging in local
     ```
 
 4. **Set up environment variables:**  
@@ -79,19 +83,19 @@ Alternatively, deploy it on Vercel:
 ## 📖 Usage
 
 1. Visit the website in your web browser.
-2. Register a new account or log in with an existing account.
+2. You can register an account or log in or just leave it.
 3. Create, view, edit, and delete pastes.
-4. Manage your profile and upload a profile picture.
+4. You can manage your profile and upload a profile picture.
 
 ## 📋 TODO List
 
 Here are some planned features and improvements for Pastein:
 
-- [ ] The Last 24 Hours Pastes.
 - [ ] Improve the UI/UX.
 - [ ] Admin Panels.
 - [ ] Optimize database queries for better performance.
 - [ ] Create an API for external integration (e.g., third-party apps).
+- [ ] Syntax Highlighting.
 
 ## 🤝 Contributing
 

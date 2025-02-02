@@ -17,6 +17,7 @@ class PasteinForm(forms.ModelForm):
                     'required': True,
                 }), required=True)
     title = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'id': 'title'}), required=False, max_length=128)
+    custom_url = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'id': 'custom_url'}), required=False, max_length=32)
     password = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'id': 'password'}), required=False, max_length=32)
     exposure = forms.ChoiceField(choices=[('public', 'Public'), ('unlisted', 'Unlisted'), ('private', 'Private')], widget=forms.Select(attrs={'class': 'form-select', 'id': 'exposure'}), required=True)
     expiration = forms.ChoiceField(choices=[
@@ -42,7 +43,7 @@ class PasteinForm(forms.ModelForm):
         if not self.user or not self.user.is_authenticated:
             self.fields['exposure'].choices = [
                 ('public', 'Public'),
-                ('unlisted', 'Unlisted')
+                ('unlisted', 'Unlisted'),
             ]
         
         # Modify expiration choices if instance has expiration
@@ -68,7 +69,13 @@ class PasteinForm(forms.ModelForm):
         title = cleaned_data.get('title')
         password = cleaned_data.get('password')
         expire = cleaned_data.get('expiration')
+        custom_url = cleaned_data.get('custom_url')
 
+        if custom_url:
+            if not self.instance.is_user_allowed_custom_url(self.user):
+                raise forms.ValidationError('You are not allowed to use a custom URL.')
+            self.instance.custom_url = custom_url
+            
         if not content:
             raise forms.ValidationError('Content cannot be empty.')
         

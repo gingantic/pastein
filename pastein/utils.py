@@ -1,8 +1,13 @@
+import string
 import requests
 import re
 from django.conf import settings
+from django.contrib.auth.hashers import PBKDF2SHA1PasswordHasher
 
 EMAIL_REGEX = re.compile(r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$')
+
+class PasteinPasswordHasher(PBKDF2SHA1PasswordHasher):
+    iterations = 1
 
 def turnstile_challenge(request):
     """Get a Turnstile challenge from Cloudflare."""
@@ -35,3 +40,7 @@ def verify_turnstile(response):
 def validate_email(email):
     """Validate an email address."""
     return bool(re.match(EMAIL_REGEX, email))
+
+def clean_custom_url(url):
+    """Clean a custom URL."""
+    return re.sub(r'[^a-z0-9_]', '', url.replace(" ", "_").lower())

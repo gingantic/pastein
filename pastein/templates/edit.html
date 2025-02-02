@@ -45,6 +45,14 @@
                                 {{ form.title }}
                             </div>
                         </div>
+                        {% if form.user.is_superuser or form.user.is_staff %}
+                        <div class="row align-items-center mb-3">
+                            <label for="custom_url" class="col-md-4 d-flex align-items-center">Custom URL:</label>
+                            <div class="col-sm-6">
+                                {{ form.custom_url }}
+                            </div>
+                        </div>
+                        {% endif %}
                         <div class="row align-items-center mb-3">
                             <label for="password" class="col-md-4 d-flex align-items-center">Password:</label>
                             <div class="col-sm-6">

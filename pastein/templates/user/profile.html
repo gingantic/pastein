@@ -29,7 +29,7 @@
                     <div class="mb-3 row">
                         <label for="username" class="col-sm-4 col-form-label">Username</label>
                         <div class="col-sm-8 d-flex align-items-center">
-                            <div id="username">{{ user.username }}</div>
+                            <input type="text" class="form-control" value="{{ user.username }}" readonly disabled>
                         </div>                  
                     </div>
                     <div class="mb-3 row">
@@ -51,10 +51,20 @@
                         </div>
                     </div>
                     <div class="mb-3 row">
+                        <label for="hidden_profile" class="col-sm-4 col-form-label">Hidden Profile</label>
+                        <div class="col-sm-8 d-flex align-items-center">
+                            <div class="form-check form-switch">
+                                <input type="checkbox" name="hidden_profile" class="form-check-input" id="hidden_profile" role="switch" 
+                                    value="1" {% if user.get_profile.hidden_profile %}checked{% endif %}
+                                    onclick="this.value = this.checked ? '1' : '0'">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
                         <label for="date_joined" class="col-sm-4 col-form-label">Profile Picture</label>
                         <div class="col-sm-8 d-flex align-items-center">
                             <div id="profile-picture">
-                                <img src="{{ user.get_profile_picture_url }}" alt="Profile Picture" class="img-thumbnail" style="width: 128px;">
+                                <img src="{{ user.get_profile.get_profile_picture_url }}" alt="Profile Picture" class="img-thumbnail" style="width: 128px;">
                             </div>
                         </div>
                     </div>

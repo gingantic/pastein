@@ -87,7 +87,7 @@ def view(request, slug):
     paste = PasteinContent.get_paste(slug)
 
     if not paste.is_viewable(request.user):
-        raise PermissionDenied()
+        raise PermissionDenied('You do not have permission to view this paste.')
 
     ip = request.META.get('HTTP_CF_FORWARDED_FOR', request.META.get('REMOTE_ADDR'))
     is_owner = paste.is_owner(request.user)
@@ -112,7 +112,7 @@ def raw(request, slug):
     paste = PasteinContent.get_paste(slug)
 
     if not paste.is_viewable(request.user):
-        raise PermissionDenied()
+        raise PermissionDenied('You do not have permission to view this paste.')
 
     if paste.password:
         return redirect('view', slug=slug)
@@ -138,12 +138,16 @@ def user_profile_view(request):
 
     if request.method == 'POST':
         email = request.POST.get('email', '').strip()
+        hidden_profile = request.POST.get('hidden_profile') == '1'
         profile_picture = request.FILES.get('profile_picture')
 
+        # Get or create user profile once
+        user_profile, _ = ProfileUser.objects.get_or_create(user=user)
+
+        # Handle email update
         if email:
             if validate_email(email):
                 email_in_use = User.objects.filter(email=email).exclude(pk=user.pk).exists()
-
                 if email_in_use:
                     messages.error(request, 'Email address already in use.')
                 elif email != user.email:
@@ -156,19 +160,23 @@ def user_profile_view(request):
             else:
                 messages.error(request, 'Invalid email address.')
 
+        # Handle profile picture update
         if profile_picture:
             try:
-                user_profile, s = ProfileUser.objects.get_or_create(user=user)
                 user_profile.profile_picture = profile_picture
                 user_profile.save()
                 messages.success(request, 'Profile picture updated successfully.')
             except ValueError:
                 messages.error(request, 'Invalid image file.')
             except Exception:
-                print_exc()
-                print(settings.STORAGES)
-                messages.error(request, 'An error occurred while updating your profile picture.')        
-
+                messages.error(request, 'An error occurred while updating your profile picture.')
+        
+        # Handle hidden profile update
+        if user_profile.hidden_profile != hidden_profile:
+            user_profile.hidden_profile = hidden_profile
+            user_profile.save()
+            messages.success(request, 'Profile visibility updated successfully.')
+        
     return render(request, 'user/profile.html', {'user': user})
 
 @login_required
@@ -249,7 +257,7 @@ def download_paste(request, slug):
     paste = PasteinContent.get_paste(slug)
 
     if not paste.is_viewable(request.user):
-        raise PermissionDenied()
+        raise PermissionDenied('You do not have permission to view this paste.')
 
     if paste.password:
         return redirect('view', slug=slug)
@@ -263,8 +271,11 @@ def download_paste(request, slug):
 def embed_paste(request, slug):
     paste = PasteinContent.get_paste(slug)
 
-    if not paste.is_viewable(request.user) or paste.password:
+    if not paste.is_viewable(request.user):
         raise PermissionDenied()
+
+    if paste.password:
+        raise PermissionDenied("Password protected paste cannot be embedded.")
 
     return render(request, 'embed.html', {'paste': paste})
 

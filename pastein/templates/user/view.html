@@ -8,7 +8,7 @@
 <main class="my-1">
     <div class="container rounded-container shadow p-4">
         <div class="d-flex align-items-center mb-3">
-            <img src="{{ user.get_profile_picture_url }}" alt="Profile Picture" class="profile-picture img-thumbnail">
+            <img src="{{ user.get_profile.get_profile_picture_url }}" alt="Profile Picture" class="profile-picture img-thumbnail">
             <div class="d-flex flex-column ms-1">
                 <div class="info-top">
                     <h3>{{ user }} paste</h3>
@@ -46,9 +46,9 @@
                 </tr>
             </thead>
             <tbody>
-                {% if not pastes %}
+                {% if pastes|length == 0 %}
                 <tr>
-                    <td colspan="5" class="text-center">No pastes found</td>
+                    <td colspan="5" class="text-center">No pastes found or User is hidden</td>
                 </tr>
                 {% endif %}
                 {% for paste in pastes %}
@@ -70,6 +70,9 @@
                             {{ "Untitled" }}
                             {% endif %}
                         </a>
+                        {% if paste.password %}
+                            <i class="fa-solid fa-key mx-1"></i>
+                        {% endif %}
                     </td>
                     <td>{{ paste.created_at }}</td>
                     {% if paste.expires_at %}

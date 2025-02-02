@@ -32,8 +32,14 @@ share/python-wheels/
 MANIFEST
 staticfiles_build/
 /static/
-migrations/
 media/
+
+# Ignore all migration files
+**/migrations/*.py
+**/migrations/*.pyc
+
+# But keep the __init__.py
+!**/migrations/__init__.py
 
 # PyInstaller
 #  Usually these files are written by a python script from a template

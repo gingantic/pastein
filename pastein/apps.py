@@ -9,13 +9,13 @@ class PasteinConfig(AppConfig):
         from .models import ProfileUser
 
         # Dynamically add a method to the User model
-        def get_profile_picture_url(user):
+        def get_profile(user):
             try:
                 profile_user = ProfileUser.objects.get(user=user)
-                return profile_user.get_profile_picture_url()
+                return profile_user
             except ProfileUser.DoesNotExist:
-                return '/static/pastein/images/default_profile_picture.png'
+                return False
 
         # Add the method to the User model
         User = get_user_model()
-        User.add_to_class("get_profile_picture_url", get_profile_picture_url)
+        User.add_to_class("get_profile", get_profile)
