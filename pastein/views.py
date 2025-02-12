@@ -7,7 +7,7 @@ from django.urls import reverse
 from .forms import PasteinForm, RegisterForm
 from .models import PasteinContent, ProfileUser
 from django.contrib.auth.models import User
-from .utils import validate_email, turnstile_challenge
+from .utils import validate_email, turnstile_challenge, get_client_ip
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import cache_page
 from traceback import print_exc
@@ -89,7 +89,7 @@ def view(request, slug):
     if not paste.is_viewable(request.user):
         raise PermissionDenied('You do not have permission to view this paste.')
 
-    ip = request.META.get('HTTP_CF_FORWARDED_FOR', request.META.get('REMOTE_ADDR'))
+    ip = get_client_ip(request)
     is_owner = paste.is_owner(request.user)
 
     if paste.password and not is_owner:
@@ -117,7 +117,7 @@ def raw(request, slug):
     if paste.password:
         return redirect('view', slug=slug)
     
-    ip = request.META.get('HTTP_CF_CONNECTING_IP', request.META.get('REMOTE_ADDR'))
+    ip = get_client_ip(request)
 
     paste.increment_hits(ip)
 
@@ -237,7 +237,7 @@ def clone_paste(request, slug):
     if not paste.is_viewable(request.user):
         raise PermissionDenied('You do not have permission to view this paste.')
     
-    if not paste.is_owner(request.user):
+    if not paste.is_owner(request.user) and paste.password:
         raise PermissionDenied('You are not the owner of this paste.')
 
     if request.method == 'POST':

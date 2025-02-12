@@ -1,6 +1,11 @@
 .rounded-container {
+    background-color: #fefefa;
     border-radius: 5px;
     padding: 20px;
+}
+
+[data-bs-theme="dark"] .rounded-container {
+    background-color: #1e2125;
 }
 
 .dropdown-user.dropdown-toggle::after {
@@ -53,28 +58,69 @@ header .btn {
 }
 
 .pastein-body {
+    background-color: #fff;
     display: flex;
     flex-direction: column;
     width: 100%;
+    overflow-x: auto;      /* Add horizontal scroll to container */
+    position: relative;    /* Add relative positioning */
+}
+
+[data-bs-theme="dark"] .pastein-body {
+    background-color: #333333;
+}
+
+.pastein-body code {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 14px;
+    line-height: 1.5;
+    white-space: pre;       /* Changed from pre-wrap to pre */
+    width: max-content;     /* Allow content to extend */
+}
+
+.pastein-body pre {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 14px;
+    line-height: 1.5;
+    margin: 0;
+    width: 100%;           /* Ensure full width */
+}
+
+
+/* Prism.js overrides */
+.pastein-body code[class*="language-"] {
+    background: #fff !important;
+}
+
+
+[data-bs-theme="dark"] .pastein-body code[class*="language-"] {
+    background: #333333 !important; 
 }
 
 .line-pair {
     display: grid;
-    grid-template-columns: 60px 1fr; /* Fixed width for line numbers */
-    align-items: start; /* Align number and text at the top */
+    grid-template-columns: 60px 1fr;
+    align-items: start;
+    position: relative;  /* Add relative positioning */
 }
 
 .line-number {
+    background-color: #eeecec;
     height: 100%;
     text-align: right;
     padding: 0 10px;
     user-select: none;
+    position: sticky;  /* Keep line numbers fixed */
+    left: 0;          /* Stick to left side */
+    z-index: 1;       /* Ensure numbers stay on top */
+    width: 60px;      /* Fixed width */
 }
 
 .line-content {
-    white-space: pre-wrap; /* Allow text wrapping */
     padding-left: 4px;
-    word-wrap: break-word; /* Break long words */
+    white-space: pre;       /* Keep pre formatting */
+    overflow: visible;      /* Allow content to extend */
+    width: max-content;     /* Allow content to extend */
 }
 
 .text-line {
@@ -110,9 +156,17 @@ header .btn {
     display: flex;
 }
 
-.details{
+.details {
     display: flex;
-    min-width: 100px;
+    min-width: fit-content;
+    gap: 0.5rem;
+    align-items: center;
+    margin-right: 2rem;  /* Add right margin for spacing */
+    white-space: nowrap; /* Prevent wrapping */
+}
+
+.details > div {
+    display: inline-block; /* Keep elements in line */
 }
 
 /* Styles for the theme switcher */

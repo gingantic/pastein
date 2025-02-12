@@ -121,6 +121,7 @@ class PasteinContent(models.Model):
     password = models.CharField(max_length=255, null=True, blank=True)
     exposure = models.CharField(max_length=10, choices=[('public', 'Public'), ('unlisted', 'Unlisted'), ('private', 'Private')], default='public')
     expires_at = models.DateTimeField(null=True, blank=True)
+    language = models.CharField(max_length=32, blank=True, null=True, default='plaintext')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     size = models.PositiveIntegerField(default=0, null=True, blank=True)

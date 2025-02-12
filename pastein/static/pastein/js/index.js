@@ -1,92 +1,129 @@
+// Global variable to store the current content
 let content;
 
 $(document).ready(function () {
-    // Check for saved theme on page load
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    $('body').attr('data-bs-theme', savedTheme);
-    updateIcon(savedTheme);
+    // Theme management module - handles all dark/light theme related functionality
+    const themeManager = {
+        init() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            this.applyTheme(savedTheme);
+            this.setupEventListeners();
+        },
 
-    // Toggle dark mode on button click
-    $('#darkModeToggle').on('click', function () {
-        const currentTheme = $('body').attr('data-bs-theme');
-        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        // Applies theme settings to the page
+        applyTheme(theme) {
+            $('body').attr('data-bs-theme', theme);
+            this.updatePrismTheme(theme);
+            this.updateIcon(theme);
+        },
 
-        // Set theme attribute and update icon
-        $('body').attr('data-bs-theme', newTheme);
-        updateIcon(newTheme);
+        // Updates Prism.js syntax highlighting theme
+        updatePrismTheme(theme) {
+            $('#prism-css').attr('href', `/static/pastein/prism/prism${theme === 'dark' ? '-dark' : ''}.css`);
+        },
 
-        // Save theme to localStorage
-        localStorage.setItem('theme', newTheme);
-    });
-    
-    // Function to update the moon/sun icon
-    function updateIcon(theme) {
-        if (theme === 'dark') {
-            $('#darkModeIcon').removeClass('fa-moon').addClass('fa-sun');
-        } else {
-            $('#darkModeIcon').removeClass('fa-sun').addClass('fa-moon');
-        }
-    }
+        // Updates the theme toggle icon between sun and moon
+        updateIcon(theme) {
+            $('#darkModeIcon').removeClass(theme === 'dark' ? 'fa-moon' : 'fa-sun')
+                            .addClass(theme === 'dark' ? 'fa-sun' : 'fa-moon');
+        },
 
-    $('#togglePassword').click(function() {
-        const password = $('#password');
-        const icon = $(this);
-        
-        // Toggle password visibility
-        const type = password.attr('type') === 'password' ? 'text' : 'password';
-        password.attr('type', type);
-        
-        // Toggle icon
-        icon.toggleClass('fa-eye fa-eye-slash');
-    });
-
-    // Double click on the user dropdown to redirect to the user's profile
-    $('#userDropdown').dblclick(function() {
-        window.location.href = $('#myPaste').attr('href');
-    });
-
-    $('#copy').click(function() {
-        // Use the Clipboard API
-        navigator.clipboard.writeText(content)
-            .then(() => {
-                alert("Copied to clipboard!");
-            })
-            .catch(err => {
-                console.error("Failed to copy: ", err);
+        // Sets up theme-related event listeners
+        setupEventListeners() {
+            // Toggle dark/light theme
+            $('#darkModeToggle').on('click', () => {
+                const currentTheme = $('body').attr('data-bs-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                
+                this.applyTheme(newTheme);
+                localStorage.setItem('theme', newTheme);
             });
-    });
+        }
+    };
 
-    // Function to making the line numbers on the view
-    function updateContent() {
-        const pasteinBody = $('.pastein-body');
-        content = pasteinBody.text();
+    // Content management module - handles content display and copying
+    const contentManager = {
+        init() {
+            this.updateContent();
+            this.setupEventListeners();
+        },
 
-        pasteinBody.empty(); // Clear previous content
-    
-        // Split content into lines
-        const lines = content.split('\n');
-    
-        lines.forEach((line, index) => {
-            // Create line-pair container
+        // Updates the content display with line numbers and syntax highlighting
+        updateContent() {
+            try {
+                const pasteinBody = $('.pastein-body');
+                const language = pasteinBody.attr('data-language');
+                content = pasteinBody.text();
+
+                pasteinBody.empty();
+                const lines = content.split('\n');
+
+                lines.forEach((line, index) => {
+                    const linePair = this.createLinePair(line, index, language);
+                    pasteinBody.append(linePair);
+                });
+            } catch (error) {
+                console.error('Error updating content:', error);
+            }
+        },
+
+        // Creates a line pair element (line number + content) for each line
+        createLinePair(line, index, language) {
             const linePair = $('<div>').addClass('line-pair');
-    
-            // Create line number
             const lineNumber = $('<div>')
                 .addClass('line-number')
                 .text(`${index + 1}.`);
-    
-            // Create line content
-            const lineContent = $('<div>')
-                .addClass('line-content')
-                .text(line);
-    
-            // Append elements to the line-pair
-            linePair.append(lineNumber, lineContent);
-    
-            // Append line-pair to the container
-            pasteinBody.append(linePair);
-        });
-    }
+            const lineContent = $('<pre>').addClass('line-content');
 
-    updateContent();          
+            // Apply syntax highlighting if language is specified
+            if (language && language !== 'plaintext') {
+                const codeElement = $('<code>')
+                    .addClass(`language-${language}`)
+                    .text(line);
+                Prism.highlightElement(codeElement[0]);
+                lineContent.append(codeElement);
+            } else {
+                lineContent.text(line);
+            }
+
+            return linePair.append(lineNumber, lineContent);
+        },
+
+        // Sets up content-related event listeners
+        setupEventListeners() {
+            $('#copy').click(() => {
+                navigator.clipboard.writeText(content)
+                    .then(() => alert("Copied to clipboard!"))
+                    .catch(err => console.error("Failed to copy:", err));
+            });
+        }
+    };
+
+    // UI management module - handles general UI interactions
+    const uiManager = {
+        init() {
+            this.setupEventListeners();
+        },
+
+        // Sets up UI-related event listeners
+        setupEventListeners() {
+            // Toggle password visibility
+            $('#togglePassword').click(function() {
+                const password = $('#password');
+                const type = password.attr('type') === 'password' ? 'text' : 'password';
+                password.attr('type', type);
+                $(this).toggleClass('fa-eye fa-eye-slash');
+            });
+
+            // Double-click user dropdown to go to profile
+            $('#userDropdown').dblclick(function() {
+                window.location.href = $('#myPaste').attr('href');
+            });
+        }
+    };
+
+    // Initialize all modules when document is ready
+    themeManager.init();
+    contentManager.init();
+    uiManager.init();
 });

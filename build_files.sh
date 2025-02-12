@@ -11,9 +11,12 @@ source venv/bin/activate
 python3 -m pip install --no-cache-dir -r requirements.txt
 python3 manage.py collectstatic --noinput
 python3 manage.py makemigrations
-python3 manage.py makemigrations pastein
 python3 manage.py migrate
-python3 manage.py migrate pastein
+
+# minify js and css files
+npm install -g uglify-js csso-cli
+find staticfiles/static/ -name "*.js" -exec uglifyjs {} -o {} --compress --mangle \;
+find staticfiles/static/ -name "*.css" -exec csso {} -o {} \;
 
 # fix for A Serverless Function has exceeded the unzipped maximum size of 250 MB
 rm -rf venv

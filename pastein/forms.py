@@ -29,6 +29,17 @@ class PasteinForm(forms.ModelForm):
         ('1d', '1 day'), 
         ('1w', '1 week')
     ], widget=forms.Select(attrs={'class': 'form-select', 'id': 'expiration'}), required=True)
+    code_highlight = forms.ChoiceField(choices=[
+        ('', 'None'), 
+        ('javascript', 'Javascript'),
+        ('json', 'JSON'),
+        ('python', 'Python'), 
+        ('css', 'CSS'), 
+        ('html', 'HTML'), 
+        ('sql', 'SQL'), 
+        ('php', 'PHP'),
+        ('clike', 'C like')
+    ], widget=forms.Select(attrs={'class': 'form-select', 'id': 'code_highlight'}), required=False)
 
     class Meta:
         model = PasteinContent
@@ -51,8 +62,13 @@ class PasteinForm(forms.ModelForm):
             self.fields['expiration'].choices = [('not_change', 'Not Change')] + list(self.fields['expiration'].choices)
             self.fields['expiration'].initial = 'not_change'
 
+        # Modify code highlight choices if instance has code highlight
+        if self.instance.language:
+            self.initial['code_highlight'] = self.instance.language
+
     def parse_time_delta(self, time_str):
         if time_str.endswith('m'):
+
             return timedelta(minutes=int(time_str[:-1]))
         elif time_str.endswith('h'):
             return timedelta(hours=int(time_str[:-1]))
@@ -70,6 +86,7 @@ class PasteinForm(forms.ModelForm):
         password = cleaned_data.get('password')
         expire = cleaned_data.get('expiration')
         custom_url = cleaned_data.get('custom_url')
+        code_highlight = cleaned_data.get('code_highlight')
 
         if custom_url:
             if not self.instance.is_user_allowed_custom_url(self.user):
@@ -98,6 +115,9 @@ class PasteinForm(forms.ModelForm):
                 self.instance.expires_at = expire_at
         else:
             raise forms.ValidationError('Invalid expiration time.')
+
+        if code_highlight:
+            self.instance.language = code_highlight
 
         return cleaned_data
 

@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ paste.title|default:"Untitled" }} - Pastein Embed</title>
+    <!-- Add Prism CSS -->
+    <link rel="stylesheet" href="/static/pastein/prism/prism-dark.css">
     <style>
         body {
             margin: 0;
@@ -12,6 +14,8 @@
             font-size: 14px;
             line-height: 1.5;
             background-color: #ffffff;
+            height: 100vh; /* Set full viewport height */
+            overflow: hidden; /* Prevent body scrolling */
         }
 
         .embed-container {
@@ -19,6 +23,8 @@
             border-radius: 4px;
             overflow: hidden;
             height: 100vh;
+            display: flex;
+            flex-direction: column; /* Stack children vertically */
         }
 
         .embed-header {
@@ -28,6 +34,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-shrink: 0; /* Prevent header from shrinking */
         }
 
         .embed-title {
@@ -46,9 +53,20 @@
 
         .embed-content {
             padding: 10px;
-            overflow: auto;
-            white-space: pre-wrap;
-            word-wrap: break-word;
+            overflow: auto; /* Enable scrolling */
+            flex-grow: 1; /* Take remaining space */
+        }
+
+        .embed-content pre {
+            margin: 0;
+            min-width: fit-content; /* Ensure code doesn't wrap */
+        }
+
+        .embed-content code {
+            font-family: 'Source Code Pro', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            display: block; /* Ensure proper block display */
         }
 
         /* Dark mode styles */
@@ -70,6 +88,10 @@
             .embed-link {
                 color: #58a6ff;
             }
+
+            .embed-content code[class*="language-"] {
+                background: #1a1a1a !important;
+            }
         }
     </style>
 </head>
@@ -81,7 +103,11 @@
             </div>
             <a href="{% url 'view' paste.url %}" target="_blank" class="embed-link">View on Pastein</a>
         </div>
-        <div class="embed-content">{{ paste.content }}</div>
+        <div class="embed-content">
+            <pre><code class="language-{{ paste.language|default:'plaintext' }}">{{ paste.content }}</code></pre>
+        </div>
     </div>
+    <!-- Add Prism JS -->
+    <script src="/static/pastein/prism/prism.js"></script>
 </body>
 </html> 
