@@ -43,7 +43,7 @@
     {% block stylesheets %}{% endblock %}
     {% block heads %}{% endblock %}
 </head>
-<body>
+<body data-bs-theme="{{ request.COOKIES.theme|default:'light' }}">
     {% include 'includes/header.html' %}
     {% block content %}{% endblock %}
     {% include 'includes/footer.html' %}    

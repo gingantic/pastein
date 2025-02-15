@@ -42,7 +42,7 @@
                         </div>
                         <div class="actions flex-fill d-flex justify-content-end">
                             {% if is_owner %}
-                                <a href="{% url 'delete' paste.url %}" class="btn btn-secondary mx-1">Delete</a>
+                                <a id="delete-btn" href="{% url 'delete' paste.url %}" class="btn btn-secondary mx-1">Delete</a>
                                 <a href="{% url 'edit' paste.url %}" class="btn btn-secondary mx-1">Edit</a>
                             {% endif %}
                             {% if not paste.password %}

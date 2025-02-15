@@ -7,6 +7,7 @@ class PasteinConfig(AppConfig):
 
     def ready(self):
         from .models import ProfileUser
+        import pastein.signals  # Import the signals
 
         # Dynamically add a method to the User model
         def get_profile(user):

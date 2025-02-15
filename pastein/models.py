@@ -16,6 +16,7 @@ import secrets
 from django.forms import ValidationError
 from django.contrib.auth.hashers import identify_hasher, make_password, check_password
 from .utils import PasteinPasswordHasher, clean_custom_url
+from .decorators import pastein_cache_model
 
 # Create your models here.
 
@@ -129,6 +130,13 @@ class PasteinContent(models.Model):
 
     class Meta:
         ordering = ('-created_at',)
+        indexes = [
+            models.Index(fields=['url']),
+            models.Index(fields=['user']),
+            models.Index(fields=['exposure']),
+            models.Index(fields=['expires_at']),
+            models.Index(fields=['created_at']),
+        ]
 
     def __str__(self):
         return self.url
@@ -234,6 +242,7 @@ class PasteinContent(models.Model):
         return False
 
     @classmethod
+    @pastein_cache_model(timeout=3600)
     def get_paste(cls, url):
         try:
             return cls.objects.get(url=url)
@@ -241,20 +250,20 @@ class PasteinContent(models.Model):
             raise Http404()
 
     @classmethod
+    @pastein_cache_model(timeout=3600)
     def get_public_pastes(cls, user):
-        if ProfileUser.objects.filter(user=user, hidden_profile=True).exists():
-            return []
-        
-        return cls.objects.filter(
+        return cls.objects.select_related('user').filter(
             exposure='public',
-            user=user
+            user=user,
+            user__profileuser__hidden_profile=False
         ).filter(
             Q(expires_at__isnull=True) | Q(expires_at__gt=timezone.now())
         ).defer('content')
     
     @classmethod
+    @pastein_cache_model(timeout=3600)
     def get_user_pastes(cls, user):
-        return cls.objects.filter(
+        return cls.objects.select_related('user').filter(
             user=user
         ).filter(
             Q(expires_at__isnull=True) | Q(expires_at__gt=timezone.now())

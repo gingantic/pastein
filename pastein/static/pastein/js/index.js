@@ -5,9 +5,27 @@ $(document).ready(function () {
     // Theme management module - handles all dark/light theme related functionality
     const themeManager = {
         init() {
-            const savedTheme = localStorage.getItem('theme') || 'light';
+            // Check cookies first, then localStorage, then default to 'light'
+            const savedTheme = this.getCookie('theme') || localStorage.getItem('theme') || 'light';
             this.applyTheme(savedTheme);
             this.setupEventListeners();
+        },
+
+        // Add cookie management methods
+        setCookie(name, value, days = 365) {
+            const date = new Date();
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+            const expires = `expires=${date.toUTCString()}`;
+            document.cookie = `${name}=${value};${expires};path=/`;
+        },
+
+        getCookie(name) {
+            const cookies = document.cookie.split(';');
+            for (let cookie of cookies) {
+                const [cookieName, cookieValue] = cookie.split('=').map(c => c.trim());
+                if (cookieName === name) return cookieValue;
+            }
+            return null;
         },
 
         // Applies theme settings to the page
@@ -36,7 +54,9 @@ $(document).ready(function () {
                 const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
                 
                 this.applyTheme(newTheme);
+                // Save theme in both localStorage and cookies
                 localStorage.setItem('theme', newTheme);
+                this.setCookie('theme', newTheme);
             });
         }
     };
@@ -95,6 +115,11 @@ $(document).ready(function () {
                 navigator.clipboard.writeText(content)
                     .then(() => alert("Copied to clipboard!"))
                     .catch(err => console.error("Failed to copy:", err));
+            });
+            $('#delete-btn').click(() => {
+                if (confirm('Are you sure you want to delete this paste?')) {
+                    window.location.href = $('#delete-btn').attr('href');
+                }
             });
         }
     };
