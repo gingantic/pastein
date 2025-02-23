@@ -142,6 +142,8 @@ SESSION_COOKIE_SECURE = True
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = 'Lax'
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 120  # 120 days
+CSRF_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_SECURE = True
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -210,6 +212,10 @@ MAX_UPLOAD_SIZE = 2 * 1024 * 1024
 
 # API secret for cron job
 CRON_API_SECRET = os.getenv('CRON_SECRET', '1')
+
+IGNORABLE_404_URLS = [
+    '/favicon.ico/',
+]
 
 if DEBUG:
     INSTALLED_APPS += ['debug_toolbar']

@@ -233,10 +233,7 @@ class PasteinContent(models.Model):
         if not user.is_authenticated:
             return False
         
-        if user.is_superuser:
-            return True
-
-        if user.is_staff:
+        if user.is_superuser or user.is_staff:
             return True
         
         return False

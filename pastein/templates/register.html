@@ -4,10 +4,6 @@
 {% load widget_tweaks %}
 {% block title %} Register {% endblock %}
 
-{% block heads %}
-{% include 'includes/turnstile.html' %}
-{% endblock %}
-
 {% block content %}
 <!-- Main Content -->
 <main class="my-1">
@@ -51,22 +47,29 @@
                     <div class="mb-3 row">
                         <label for="password" class="col-sm-4 col-form-label">Password:</label>
                         <div class="col-sm-8">
-                            {{ form.password1 | add_class:"form-control" }}
+                            <div class="position-relative">
+                                {{ form.password1 | add_class:"form-control pe-5" }}
+                                <i class="fa-regular fa-eye position-absolute top-50 end-0 translate-middle-y pe-3 password-toggle" 
+                                   style="cursor: pointer;width: 36px;"></i>
+                            </div>
                             <div class="form-text text-muted pt-1">{{ form.password1.help_text }}</div>
                         </div>
-                        
                     </div>
                     <div class="mb-3 row">
                         <label for="confirm_password" class="col-sm-4 col-form-label">Confirm Password:</label>
                         <div class="col-sm-8">
-                            {{ form.password2 | add_class:"form-control" }}
+                            <div class="position-relative">
+                                {{ form.password2 | add_class:"form-control pe-5" }}
+                                <i class="fa-regular fa-eye position-absolute top-50 end-0 translate-middle-y pe-3 password-toggle" 
+                                   style="cursor: pointer;width: 36px;"></i>
+                            </div>
                             <div class="form-text text-muted pt-1">{{ form.password2.help_text }}</div>
                         </div>
                     </div>
                     <p class="text-muted">By clicking Register, you agree to our <a href="/terms">Terms and Conditions</a>.</p>
                     <div class="mb-3 row">
                         <div class="col-sm-8 offset-sm-4">
-                            <div class="cf-turnstile my-1" data-sitekey="{{ TURNSTILE_SITE_KEY }}"></div>
+                            {% include 'includes/turnstile.html' %}
                             <button type="submit" class="btn btn-primary">Register</button>
                         </div>
                     </div>

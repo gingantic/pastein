@@ -1,3 +1,4 @@
+/* === GENERAL STYLES === */
 .rounded-container {
     background-color: #fefefa;
     border-radius: 5px;
@@ -8,15 +9,11 @@
     background-color: #1e2125;
 }
 
-.dropdown-user.dropdown-toggle::after {
-    display: none; /* Hides the dropdown arrow */
+a {
+    text-decoration: none;
 }
 
-.header-avatar{
-    width: 30px;
-    height: 30px;
-}
-
+/* === HEADER STYLES === */
 header .btn {
     --bs-btn-padding-y: .35rem; 
     --bs-btn-padding-x: .5rem; 
@@ -24,6 +21,33 @@ header .btn {
     --bs-btn-border-radius: 3px;
 }
 
+header .btn:hover {
+    background-color: #e0e0e0;
+}
+
+[data-bs-theme="dark"] header .btn:hover {
+    background-color: #7c7c7c;
+}
+
+/* === DROPDOWN STYLES === */
+.dropdown-user.dropdown-toggle::after {
+    display: none; /* Hides the dropdown arrow */
+}
+
+/* === AVATAR STYLES === */
+.header-avatar {
+    width: 30px;
+    height: 30px;
+}
+
+.profile-picture {
+    width: 85px;
+    height: 85px;
+    display: block;
+    margin: 0.25rem 0.5rem 0.25rem 0.25rem;
+}
+
+/* === CODE CONTAINER STYLES === */
 .pastein-container {
     border: 1px solid #ccc;
     font-family: monospace;
@@ -32,7 +56,7 @@ header .btn {
     overflow: hidden;
     margin: 20px;
     display: flex;
-    flex-direction: column; /* Ensure header is on top */
+    flex-direction: column;
 }
 
 .pastein-header {
@@ -49,21 +73,13 @@ header .btn {
     --bs-btn-font-size: .75rem;
 }
 
-.pastein-title {
-    font-weight: bold;
-}
-
-.pastein-date {
-    font-size: 12px;
-}
-
 .pastein-body {
     background-color: #fff;
     display: flex;
     flex-direction: column;
     width: 100%;
-    overflow-x: auto;      /* Add horizontal scroll to container */
-    position: relative;    /* Add relative positioning */
+    overflow-x: auto;
+    position: relative;
 }
 
 [data-bs-theme="dark"] .pastein-body {
@@ -74,8 +90,8 @@ header .btn {
     font-family: 'Source Code Pro', monospace;
     font-size: 14px;
     line-height: 1.5;
-    white-space: pre;       /* Changed from pre-wrap to pre */
-    width: max-content;     /* Allow content to extend */
+    white-space: pre;
+    width: max-content;
 }
 
 .pastein-body pre {
@@ -83,25 +99,24 @@ header .btn {
     font-size: 14px;
     line-height: 1.5;
     margin: 0;
-    width: 100%;           /* Ensure full width */
+    width: 100%;
 }
 
-
-/* Prism.js overrides */
+/* === PRISM.JS OVERRIDES === */
 .pastein-body code[class*="language-"] {
     background: #fff !important;
 }
-
 
 [data-bs-theme="dark"] .pastein-body code[class*="language-"] {
     background: #333333 !important; 
 }
 
+/* === LINE NUMBER STYLES FOR CONTENT === */
 .line-pair {
     display: grid;
     grid-template-columns: 60px 1fr;
     align-items: start;
-    position: relative;  /* Add relative positioning */
+    position: relative;
 }
 
 .line-number {
@@ -110,45 +125,42 @@ header .btn {
     text-align: right;
     padding: 0 10px;
     user-select: none;
-    position: sticky;  /* Keep line numbers fixed */
-    left: 0;          /* Stick to left side */
-    z-index: 1;       /* Ensure numbers stay on top */
-    width: 60px;      /* Fixed width */
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    width: 60px;
+}
+
+[data-bs-theme="dark"] .line-number {
+    background-color: #444444;
+    color: #cccccc;
 }
 
 .line-content {
     padding-left: 4px;
-    white-space: pre;       /* Keep pre formatting */
-    overflow: visible;      /* Allow content to extend */
-    width: max-content;     /* Allow content to extend */
+    white-space: pre;
+    width: max-content;
 }
 
 .text-line {
     min-height: 1.2em;
 }
 
+/* === TEXT STYLES === */
 .info-top {
     font-size: 1.5rem;
     font-weight: 600;
 }
 
 .divider {
-    border-top: 1px solid #ddd; /* Thin horizontal line */
-    margin: 0.5rem auto; /* Center it */
+    border-top: 1px solid #ddd;
+    margin: 0.5rem auto;
 }
 
-.profile-picture{
-    width: 85px;
-    height: 85px;
-    display: block;
-    margin-left: 0.25rem;
-    margin-right: 0.5rem;
-}
-
-/* Ensures scrollable container for horizontal overflow */
+/* === FLEX CONTAINER STYLES === */
 .overflow-scroll-container {
     overflow-x: auto;
-    -webkit-overflow-scrolling: touch; /* Enables smooth scrolling for iOS */
+    -webkit-overflow-scrolling: touch;
 }
 
 .actions {
@@ -161,43 +173,33 @@ header .btn {
     min-width: fit-content;
     gap: 0.5rem;
     align-items: center;
-    margin-right: 2rem;  /* Add right margin for spacing */
-    white-space: nowrap; /* Prevent wrapping */
+    margin-right: 2rem;
+    white-space: nowrap;
 }
 
 .details > div {
-    display: inline-block; /* Keep elements in line */
+    display: inline-block;
 }
 
-/* Styles for the theme switcher */
+/* === THEME SWITCHER === */
 .dark-mode-toggle {
     height: 24px;
     width: 24px;
     cursor: pointer;
 }
 
-/* Dark mode styles */
+/* === DARK MODE STYLES === */
 [data-bs-theme="dark"] .pastein-container {
-    background-color: #333333; /* Dark background */
-    color: #ffffff; /* Light text for dark theme */
+    background-color: #333333;
+    color: #ffffff;
 }
 
-/* Additional styles for better contrast in dark mode */
 [data-bs-theme="dark"] .pastein-header {
-    background-color: #444444; /* Slightly lighter background for header */
-    border-bottom: 1px solid #555555; /* Subtle separation in dark mode */
-}
-
-[data-bs-theme="dark"] .line-number {
-    background-color: #444444; /* Dark background for line numbers */
-    color: #cccccc; /* Lighter text for contrast */
+    background-color: #444444;
+    border-bottom: 1px solid #555555;
 }
 
 [data-bs-theme="dark"] .text-content {
-    background-color: #333333; /* Match container background */
-    color: #ffffff; /* Ensure readability */
-}
-
-a {
-    text-decoration: none;
+    background-color: #333333;
+    color: #ffffff;
 }

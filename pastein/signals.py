@@ -37,16 +37,19 @@ def delete_user_profile(sender, instance, **kwargs):
 # Signals to clear cache when data changes
 @receiver([post_save, post_delete], sender=PasteinContent)
 def pastein_clear_cache(sender, instance, **kwargs):
-    for name, method in inspect.getmembers(PasteinContent, predicate=inspect.ismethod):
-        if hasattr(method, '__wrapped__'):  # Check if method is decorated with @cache_model
-            param_names = inspect.signature(method).parameters.keys()
-            
-            if "url" in param_names:
-                args = (instance.url,)
-            elif "user" in param_names:
-                args = (instance.user._wrapped,) if isinstance(instance.user, SimpleLazyObject) else (instance.user,)
-            else:
-                continue
+    try:
+        for name, method in inspect.getmembers(PasteinContent, predicate=inspect.ismethod):
+            if hasattr(method, '__wrapped__'):  # Check if method is decorated with @cache_model
+                param_names = inspect.signature(method).parameters.keys()
+                
+                if "url" in param_names:
+                    args = (instance.url,)
+                elif "user" in param_names:
+                    args = (instance.user._wrapped,) if isinstance(instance.user, SimpleLazyObject) else (instance.user,)
+                else:
+                    continue
 
-            cache_key = f'pastein:{name}:{args}'
-            cache.delete(cache_key)
+                cache_key = f'pastein:{name}:{args}'
+                cache.delete(cache_key)
+    except Exception as e:
+        print(e)

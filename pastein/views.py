@@ -272,7 +272,7 @@ def embed_paste(request, slug):
     paste = PasteinContent.get_paste(slug)
 
     if not paste.is_viewable(request.user):
-        raise PermissionDenied()
+        raise PermissionDenied("You do not have permission to view this paste.")
 
     if paste.password:
         raise PermissionDenied("Password protected paste cannot be embedded.")

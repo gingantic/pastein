@@ -132,11 +132,11 @@ $(document).ready(function () {
 
         // Sets up UI-related event listeners
         setupEventListeners() {
-            // Toggle password visibility
-            $('#togglePassword').click(function() {
-                const password = $('#password');
-                const type = password.attr('type') === 'password' ? 'text' : 'password';
-                password.attr('type', type);
+            // Toggle password visibility for any password field with a toggle button
+            $(document).on('click', '.password-toggle', function() {
+                const passwordField = $(this).siblings('input[type="password"], input[type="text"]');
+                const type = passwordField.attr('type') === 'password' ? 'text' : 'password';
+                passwordField.attr('type', type);
                 $(this).toggleClass('fa-eye fa-eye-slash');
             });
 

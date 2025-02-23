@@ -21,16 +21,17 @@ def turnstile_challenge(request):
     if not turnstile_response:
         return False
     
-    return verify_turnstile(turnstile_response)
+    return verify_turnstile(turnstile_response, get_client_ip(request))
 
-def verify_turnstile(response):
+def verify_turnstile(response, remoteip):
     """Verify the Turnstile response."""
      
     secret_key = settings.TURNSTILE_SECRET_KEY
     url = "https://challenges.cloudflare.com/turnstile/v0/siteverify"
     data = {
         'secret': secret_key,
-        'response': response
+        'response': response,
+        'remoteip': remoteip
     }
 
     response = requests.post(url, data=data)

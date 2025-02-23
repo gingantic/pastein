@@ -68,7 +68,6 @@ class PasteinForm(forms.ModelForm):
 
     def parse_time_delta(self, time_str):
         if time_str.endswith('m'):
-
             return timedelta(minutes=int(time_str[:-1]))
         elif time_str.endswith('h'):
             return timedelta(hours=int(time_str[:-1]))

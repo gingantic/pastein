@@ -6,7 +6,6 @@ def pastein_cache_model(timeout=300):  # Default timeout of 5 minutes
         @wraps(func)
         def wrapper(cls, *args, **kwargs):
             cache_key = f'pastein:{func.__name__}:{args}'
-            print(cache_key)
             cached_instance = cache.get(cache_key)
             if cached_instance:
                 return cached_instance
