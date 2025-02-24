@@ -1,4 +1,6 @@
 import inspect
+import json
+import hashlib
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.contrib.auth.models import User
@@ -34,22 +36,26 @@ def delete_user_profile(sender, instance, **kwargs):
     except ProfileUser.DoesNotExist:
         pass 
 
-# Signals to clear cache when data changes
 @receiver([post_save, post_delete], sender=PasteinContent)
 def pastein_clear_cache(sender, instance, **kwargs):
     try:
         for name, method in inspect.getmembers(PasteinContent, predicate=inspect.ismethod):
-            if hasattr(method, '__wrapped__'):  # Check if method is decorated with @cache_model
+            if hasattr(method, '__wrapped__'):  # Check if method is decorated with @pastein_cache_model
                 param_names = inspect.signature(method).parameters.keys()
                 
                 if "url" in param_names:
                     args = (instance.url,)
                 elif "user" in param_names:
-                    args = (instance.user._wrapped,) if isinstance(instance.user, SimpleLazyObject) else (instance.user,)
+                    user = instance.user._wrapped if isinstance(instance.user, SimpleLazyObject) else instance.user
+                    args = (str(user),)  # Ensure user is converted to a string
                 else:
                     continue
 
-                cache_key = f'pastein:{name}:{args}'
+                # Convert args to JSON and hash it for a valid cache key
+                args_str = json.dumps(args, default=str, sort_keys=True)
+                hashed_args = hashlib.md5(args_str.encode()).hexdigest()
+                cache_key = f'pastein:{name}:{hashed_args}'
+
                 cache.delete(cache_key)
     except Exception as e:
-        print(e)
+        print(f"Cache clear error: {e}")
